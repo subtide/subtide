@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemalocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
-  <groupId>overtone</groupId>
-  <artifactId>overtone</artifactId>
+  <groupId>org.subtide</groupId>
+  <artifactId>subtide</artifactId>
   <version>0.16.3331</version>
-  <name>overtone</name>
+  <name>subtide</name>
   <description>Sound and music live programming environment.</description>
-  <url>https://github.com/overtone/overtone</url>
-  <inceptionYear>2009</inceptionYear>
+  <url>https://github.com/subtide/subtide</url>
+  <inceptionYear>2026</inceptionYear>
   <organization>
-    <name>Overtone</name>
-    <url>https://overtone.github.io/</url>
+    <name>Subtide</name>
+    <url>https://subtide.org</url>
   </organization>
   <properties>
     <project class="build sourceEncoding">UTF-8</project>
@@ -22,9 +22,9 @@
     </license>
   </licenses>
   <scm>
-    <url>https://github.com/overtone/overtone</url>
-    <connection>scm:git:git://github.com/overtone/overtone.git</connection>
-    <developerConnection>scm:git:ssh://git@github.com/overtone/overtone.git</developerConnection>
+    <url>https://github.com/subtide/subtide</url>
+    <connection>scm:git:git://github.com/subtide/subtide.git</connection>
+    <developerConnection>scm:git:ssh://git@github.com/subtide/subtide.git</developerConnection>
     <tag>7d2a2f8465c7b867e1ad1c4f69c0884ed47ed79f</tag>
   </scm>
   <dependencies>

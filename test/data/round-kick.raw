@@ -1,5 +1,5 @@
 ; This is an annotated version of this synth definition to help in understanding
-; some basics about synths and the synthdef data structure used in Overtone.
+; some basics about synths and the synthdef data structure used in Subtide.
 
 ; Here is a basic kick drum.  An envelope generator is multiplied by a low frequency 
 ; sin wave, which is like turning the volume knob up and down really quick while playing 

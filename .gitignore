@@ -35,7 +35,7 @@ target/
 *~
 .clj-kondo/.cache
 pom.xml.asc
-/.overtone
+/.subtide
 /.calva
 /.lsp
 /.clj-kondo
