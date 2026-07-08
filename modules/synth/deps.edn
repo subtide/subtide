@@ -1,7 +1,7 @@
 {:paths ["src" "resources"]
 
  :deps
- {overtone/at-at          {:mvn/version "1.4.65"}
+ {overtone/at-at          {:local/root "../schedule"}
   org.clojure/data.json   {:mvn/version "2.5.0"}  ; Freesound
   commons-net/commons-net {:mvn/version "3.10.0"} ; Decode OSC timetag
   javax.jmdns/jmdns       {:mvn/version "3.4.1"}  ; ZeroConf support

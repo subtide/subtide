@@ -1,12 +1,12 @@
-#!/usr/bin/env sh
+#!/usr/bin/env bash
 
 set -xe
 
-rm -r classes || true
-mkdir -p classes
+pushd modules/synth
+  ./bin/ci
+popd
 
-clojure "-M:test:test-runner:$1"
-clojure -M -e "(do (compile 'subtide.live) (System/exit 0))"
-clojure -M -e "(do (require 'subtide.live) (System/exit 0))"
-
-rm -r classes || true
+# TODO
+#pushd modules/schedule
+#  ./bin/ci
+#pop
