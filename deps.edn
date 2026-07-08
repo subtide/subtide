@@ -1,0 +1,2 @@
+{:deps {org.subtide/subtide.synth {:local/root "subtide/synth"}
+        org.subtide/subtide.schedule {:local/root "subtide/schedule"}}}
