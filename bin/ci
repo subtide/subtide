@@ -2,11 +2,11 @@
 
 set -xe
 
-pushd modules/synth
+pushd subtide/synth
   ./bin/ci
 popd
 
 # TODO
-#pushd modules/schedule
+#pushd subtide/schedule
 #  ./bin/ci
 #pop
