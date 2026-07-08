@@ -1,7 +1,7 @@
 (ns subtide.music.rhythm
   "Functions to help work with musical time."
   {:author "Jeff Rose"}
-  (:require [overtone.at-at :refer [now]]))
+  (:require [subtide.schedule :refer [now]]))
 
 (defonce ^{:private true}
   _PROTOCOLS_

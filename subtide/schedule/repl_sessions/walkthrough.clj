@@ -1,6 +1,6 @@
 (ns at-at.walkthrough
   (:require
-   [overtone.at-at :as at]))
+   [subtide.schedule :as at]))
 
 (def my-pool (at-at/mk-pool))
 

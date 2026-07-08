@@ -10,7 +10,7 @@
         [subtide.osc.decode :only [osc-decode-packet]]
         [subtide.osc.encode :only [osc-encode-msg osc-encode-bundle]]
         [subtide.osc.pattern :only [matching-handlers]])
-  (:require [overtone.at-at :as at-at]
+  (:require [subtide.schedule :as at-at]
             [clojure.string :as string]))
 
 (set! *warn-on-reflection* true)

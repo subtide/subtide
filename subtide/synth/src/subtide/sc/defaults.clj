@@ -1,7 +1,7 @@
 (ns subtide.sc.defaults
   (:use [subtide.helpers.file]
         [subtide.helpers.lib :only [windows-sc-path]])
-  (:require [overtone.at-at :as at-at]
+  (:require [subtide.schedule :as at-at]
             [subtide.config.store]))
 
 (def empty-foundation-groups {:subtide-group          nil

@@ -1,6 +1,6 @@
 (ns subtide.studio.event
   (:require
-   [overtone.at-at :as at-at]
+   [subtide.schedule :as at-at]
    [subtide.libs.event :as event]
    [subtide.music.pitch :as pitch]
    [subtide.music.rhythm :as rhythm]

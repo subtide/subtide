@@ -1,9 +1,11 @@
-(ns overtone.at-at
+(ns subtide.schedule
   (:require
    [clojure.pprint :as pprint])
   (:import
    (java.io Writer)
    (java.util.concurrent Executors Future ScheduledThreadPoolExecutor ThreadFactory ThreadPoolExecutor TimeUnit)))
+
+(set! *warn-on-reflection* true)
 
 (declare job-string)
 
@@ -11,7 +13,7 @@
   "Called when a scheduled function throws. Use `alter-var-root` to customize
   this."
   [^Throwable throwable job]
-  (println (str throwable " thrown by at-at task: " (job-string job)))
+  (println (str throwable " thrown by subtide.schedule task: " (job-string job)))
   (.printStackTrace throwable)
   (throw throwable))
 
@@ -213,7 +215,7 @@
                 (reify ThreadFactory
                   (newThread [this runnable]
                     (let [thread (.newThread thread-factory runnable)]
-                      (.setName thread (str "at-at-" (.getName thread)))
+                      (.setName thread (str "subtide.schedule-" (.getName thread)))
                       thread))))]
     t-pool))
 

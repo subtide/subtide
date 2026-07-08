@@ -11,7 +11,7 @@
         [subtide.sc.foundation-groups :only [foundation-monitor-group]]
         [subtide.libs.deps :only [on-deps]])
   (:require [clojure.pprint]
-            [overtone.at-at :as at-at]
+            [subtide.schedule :as at-at]
             [subtide.sc.info :refer [server-num-input-buses server-num-output-buses]]
             [subtide.libs.deps :refer [satisfy-deps]]))
 

@@ -4,7 +4,7 @@
   Mostly consists of convenience functions around at-at"
   {:author "Jeff Rose and Sam Aaron"}
   (:require
-   [overtone.at-at :as at-at]
+   [subtide.schedule :as at-at]
    [subtide.libs.event :as event]
    [subtide.sc.protocols :as protocols]))
 
@@ -182,8 +182,8 @@
   (at-at/show-schedule *current-pool*))
 
 (extend-protocol protocols/IKillable
-  overtone.at_at.RecurringJob
+  subtide.schedule.RecurringJob
   (kill* [job] (stop-player job))
 
-  overtone.at_at.ScheduledJob
+  subtide.schedule.ScheduledJob
   (kill* [job] (stop-player job)))

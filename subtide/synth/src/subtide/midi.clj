@@ -4,7 +4,7 @@
   messages to devices, play notes, etc."
   {:author "Jeff Rose"}
   (:require
-   [overtone.at-at :as at-at])
+   [subtide.schedule :as at-at])
   (:import
    (java.awt.event MouseAdapter)
    (java.util.concurrent FutureTask)

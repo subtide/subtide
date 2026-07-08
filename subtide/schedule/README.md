@@ -1,36 +1,18 @@
 ### subtide.schedule
 
-<!-- badges -->
-[![cljdoc badge](https://cljdoc.org/badge/overtone/at-at)](https://cljdoc.org/d/overtone/at-at) [![Clojars Project](https://img.shields.io/clojars/v/overtone/at-at.svg)](https://clojars.org/overtone/at-at)
-<!-- /badges -->
+Based on [at-at](https://github.com/overtone/at-at).
 
 Simple ahead-of-time function scheduler. Allows you to schedule the execution of an anonymous function for a point in the future.
-
-<!-- installation -->
-## Installation
-
-To use the latest release, add the following to your `deps.edn` ([Clojure CLI](https://clojure.org/guides/deps_and_cli))
-
-```
-overtone/at-at {:mvn/version "1.4.65"}
-```
-
-or add the following to your `project.clj` ([Leiningen](https://leiningen.org/))
-
-```
-[overtone/at-at "1.4.65"]
-```
-<!-- /installation -->
 
 ### Basic Usage
 
 First pull in the lib:
 
 ```clj
-(require '[overtone.at-at :as at])
+(require '[subtide.schedule :as at])
 ```
 
-`at-at` uses `ScheduledThreadPoolExecutor`s behind the scenes which use a thread pool to run the scheduled tasks. You therefore need create a pool before you can get going:
+`subtide.schedule` uses `ScheduledThreadPoolExecutor`s behind the scenes which use a thread pool to run the scheduled tasks. You therefore need create a pool before you can get going:
 
 ```clj
 (def my-pool (at/mk-pool))
@@ -97,7 +79,7 @@ You may forcefully reset the pool using the `:kill` strategy:
 
 ### Viewing running scheduled tasks.
 
-`at-at` keeps an eye on all the tasks you've scheduled. You can get a set of the current jobs (both scheduled and recurring) using `scheduled-jobs` and you can pretty-print a list of these job using `show-schedule`. The ids shown in the output of `show-schedule` are also accepted in `kill` and `stop`, provided you also specify the associated pool. See the `kill` and `stop` docstrings for more information.
+`subtide.schedule` keeps an eye on all the tasks you've scheduled. You can get a set of the current jobs (both scheduled and recurring) using `scheduled-jobs` and you can pretty-print a list of these job using `show-schedule`. The ids shown in the output of `show-schedule` are also accepted in `kill` and `stop`, provided you also specify the associated pool. See the `kill` and `stop` docstrings for more information.
 
 ```clj
 (def tp (at/mk-pool))
@@ -106,18 +88,6 @@ You may forcefully reset the pool using the `:kill` strategy:
 (at/show-schedule tp)
 ;; [6][RECUR] created: Thu 12:03:35s, period: 5000ms,  desc: "Alive task"
 ;; [5][SCHED] created: Thu 12:03:32s, starts at: Thu 12:03:42s, desc: "Hello printer"
-```
-
-### History
-
-at-at was extracted from the awesome music making wonder that is Overtone (http://github.com/overtone/overtone)
-
-### Release Tooling
-
-This project uses the Lambda Island release tooling. See `bin/proj --help` for options. To release a new version to Clojars:
-
-```
-bin/proj release
 ```
 
 ### Authors
