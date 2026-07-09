@@ -95,10 +95,6 @@
 (def WPHASE      5)
 (def MKL         6)
 
-(def INFINITE
-  "Positive infinity - abbreviation for Float/POSITIVE_INFINITY"
-  Float/POSITIVE_INFINITY)
-
 (def INF
   "Positive infinity - abbreviation for Float/POSITIVE_INFINITY"
   Float/POSITIVE_INFINITY)

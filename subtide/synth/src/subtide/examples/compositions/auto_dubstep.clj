@@ -50,9 +50,9 @@
             ;; create an impulse trigger firing once per bar
             trig    (impulse:kr (/ bpm 120))
             ;; create frequency generator for a randomly picked note
-            freq    (midicps (lag (demand trig 0 (dxrand notes INF)) 0.25))
+            freq    (midicps (lag (demand trig 0 (dxrand notes ##Inf)) 0.25))
             ;; switch note durations
-            swr     (demand trig 0 (dseq [1 6 6 2 1 2 4 8 3 3] INF))
+            swr     (demand trig 0 (dseq [1 6 6 2 1 2 4 8 3 3] ##Inf))
             ;; create a sweep curve for filter below
             sweep   (lin-exp (lf-tri swr) -1 1 40 3000)
             ;; create a slightly detuned stereo sawtooth oscillator
@@ -81,4 +81,7 @@
             snare   (clip2 snare 1)]
    ;; mixdown & clip
    (clip2 (+ wob kick snare) 1)))
-;;(stop)
+
+(comment
+  (stop)
+  )
