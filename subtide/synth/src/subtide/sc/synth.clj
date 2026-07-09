@@ -550,13 +550,14 @@
 (defn control-proxy-value-atom
   "Provide the `:value` for a ControlProxy, which is an atom. Attempts to reuse
   existing atoms in case a synth gets redefined."
-  [full-name param]
-  (let [ref (or (get-in @control-proxy-cache [full-name (:name param)])
-                (atom nil))]
-    (swap! control-proxy-cache assoc-in [full-name (:name param)] ref)
-    (when (or (nil? @ref)
-              (not (<= (:min param 0) @ref (:max param Double/MAX_VALUE))))
-      (reset! ref (:default param)))
+  [full-name {param-name :name :as param}]
+  (let [{{ref param-name} full-name}
+        (swap! control-proxy-cache update-in [full-name param-name] #(or % (atom nil)))]
+    (swap! ref (fn [v]
+                 (if (or (nil? v)
+                         (not (<= (:min param 0) v (:max param Double/MAX_VALUE))))
+                   (:default param)
+                   v)))
     ref))
 
 (defmacro synth
