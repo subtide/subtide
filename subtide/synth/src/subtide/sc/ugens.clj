@@ -95,11 +95,6 @@
 (def WPHASE      5)
 (def MKL         6)
 
-(def INF
-  "Positive infinity - abbreviation for Float/POSITIVE_INFINITY"
-  Float/POSITIVE_INFINITY)
-
-
 (defmacro with-overloaded-ugens
   "Bind symbols for all overloaded ugens (i.e. + - / etc.) to the
   overloaded fn in the ns subtide.sc.ugen-collide. These fns will

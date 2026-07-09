@@ -10,7 +10,7 @@
 ; each time it gets a trigger.
 (demo 2
       (let [trig (impulse:kr 8)
-            freqs (dseq [440 880 220] INF)
+            freqs (dseq [440 880 220] ##Inf)
             note-gen (demand:kr trig 0 freqs)
             src (sin-osc note-gen)]
         (* [0.1 0.1] src)))
@@ -19,7 +19,7 @@
 ; Randomize the sequence of notes
 (demo 2
       (let [trig (impulse:kr 8)
-            freqs (drand [440 880 220] INF)
+            freqs (drand [440 880 220] ##Inf)
             note-gen (demand:kr trig 0 freqs)
             src (sin-osc note-gen)]
         (pan2 (* 0.1 src))))
@@ -27,7 +27,7 @@
 ; Shuffle the notes, but then repeat them in the same order
 (demo 4
       (let [trig (impulse:kr 3)
-            freqs (dseq (dshuf [440 880 220] 2) INF)
+            freqs (dseq (dshuf [440 880 220] 2) ##Inf)
             note-gen (demand:kr trig 0 freqs)
             src (sin-osc [(* 1.01 note-gen) note-gen])]
         (* 0.2 src)))
@@ -36,7 +36,7 @@
 ; the others have played.
 (demo 2
       (let [trig (impulse:kr 8)
-            freqs (dxrand [440 880 220] INF)
+            freqs (dxrand [440 880 220] ##Inf)
             note-gen (demand:kr trig 0 freqs)
             src (sin-osc note-gen)]
         (* [0.2 0.2] src)))
@@ -56,7 +56,7 @@
 
 (demo 20
       (let [trig (impulse:kr 8)
-            indexes (dseq (range 8) INF)
+            indexes (dseq (range 8) ##Inf)
             freqs (dbufrd buf indexes)
             note-gen (demand:kr trig 0 freqs)
             src (sin-osc (midicps note-gen))]
@@ -72,7 +72,7 @@
 ; outputting on a control bus onto the control of another synth.
 (defsynth note-generator []
   (let [trig (impulse:kr 8)
-        freqs (dseq [440 880 220] INF)
+        freqs (dseq [440 880 220] ##Inf)
         note-gen (demand:kr trig 0 freqs)]
     (out:kr 0 note-gen)))
 
@@ -86,7 +86,7 @@
 ;(stop)
 
 (demo 4
-      (let [freq (duty  (drand [0.2 0.4 0.8 0.6] INF)
+      (let [freq (duty  (drand [0.2 0.4 0.8 0.6] ##Inf)
                         0
                         (dseq [440 880 1200 600] 2))
             src (saw freq)]
@@ -95,7 +95,7 @@
 
 ;;play a little rhythm
 (demo 5
-      (t-duty (dseq [0.1 0.2 0.4 0.3] INF)))
+      (t-duty (dseq [0.1 0.2 0.4 0.3] ##Inf)))
 
 
 ; Generate a series of values, incrementing linearly.
@@ -125,14 +125,14 @@
 ; Demanding noise...
 (demo 2
       (let [trig (impulse:kr 2)
-            freqs (dwhite 0 20 INF)
+            freqs (dwhite 0 20 ##Inf)
             note-gen (+ 340 (* 30 (demand:kr trig 0 freqs)))
             src (sin-osc note-gen)]
         (pan2 (* 0.1 src))))
 
 ;;diwhite example
 (demo 10
-      (let [vals (dwhite 0 15 INF)
+      (let [vals (dwhite 0 15 ##Inf)
             trig (impulse:kr (mouse-x 1 40 1))
             val (demand:kr trig 0 vals)
             poll (poll trig val "diwhite val:")
@@ -152,4 +152,4 @@
             pos (mouse-x 0 (- (buf-frames:kr b) 1))
             write (mouse-button)]
         (demand:kr write 0 (dbufwr val b pos 1))
-        (* 0.1 (sin-osc (duty:kr (* 0.2 (dseq [0.5 0.75 0.5 1] INF)) 0 (dbufrd b (dseries 0 1 INF)))))))
+        (* 0.1 (sin-osc (duty:kr (* 0.2 (dseq [0.5 0.75 0.5 1] ##Inf)) 0 (dbufrd b (dseries 0 1 ##Inf)))))))

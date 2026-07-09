@@ -6,6 +6,6 @@
   ""
   [lo {:default 0 :doc ""}
    hi {:default 1 :doc ""}
-   length {:default INF :doc ""}]
+   length {:default ##Inf :doc ""}]
   ""
   (:dr (internal:d-gauss:dr length hi lo)))

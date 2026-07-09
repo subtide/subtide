@@ -13,7 +13,7 @@
    [max {:default 15 :doc "Max walk range. Increase to allow for higher freqs."}
     step {:default 1 :doc "Step size. Increase to allow for larger steps (will sound more random)"}]
    "
-   (let [vals (dibrown 0 15 1 INF)
+   (let [vals (dibrown 0 15 1 ##Inf)
          trig (impulse:kr (mouse-x 1 40 1))
          val (demand trig 0 vals)
          poll (poll trig val \"dibrown val:\")
@@ -31,7 +31,7 @@
    [max {:default 15 :doc "Max walk range. Increase to allow for higher freqs."}
     step {:default 1 :doc "Step size. Increase to allow for larger steps (will sound more random)"}]
    "
-   (let [vals (dbrown 0 15 1 INF)
+   (let [vals (dbrown 0 15 1 ##Inf)
          trig (impulse:kr (mouse-x 1 40 1))
          val (demand trig 0 vals)
          poll (poll trig val \"dbrown val:\")
@@ -48,7 +48,7 @@
    rate :ar
    [max {:default 15 :doc "Max walk range. Increase to allow for higher freqs."}]
    "
-   (let [vals (diwhite 0 15 INF)
+   (let [vals (diwhite 0 15 ##Inf)
          trig (impulse:kr (mouse-x 1 40 1))
          val (demand:kr trig 0 vals)
          poll (poll trig val \"diwhite val:\")
@@ -65,7 +65,7 @@
    rate :ar
    [max {:default 15 :doc "Max walk range. Increase to allow for higher freqs."}]
    "
-   (let [vals (dwhite 0 15 INF)
+   (let [vals (dwhite 0 15 ##Inf)
          trig (impulse:kr (mouse-x 1 40 1))
          val (demand:kr trig 0 vals)
          poll (poll trig val \"dwhite val:\")

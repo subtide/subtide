@@ -123,7 +123,7 @@
    (cond
      (= 0 repeat)
      nil
-     (= Float/POSITIVE_INFINITY repeat)
+     (= ##Inf repeat)
      (concat (pbind m) (lazy-seq (pbind m repeat)))
      :else
      (concat (pbind m) (lazy-seq (pbind m (dec repeat))))))
@@ -165,7 +165,7 @@
 (defmacro pdo
   "Macro, wraps a block which gets repeatedly called to yield sequence values."
   [& body]
-  `(repeatedly (fn [] ~@body)))
+  `(repeatedly (fn [] (do ~@body))))
 
 (defn pseries
   "Generate a number series with a given start, step, and size."

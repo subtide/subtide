@@ -172,7 +172,7 @@
 
    {:name "Dseries",
     :args [{:name "length"
-            :default Float/POSITIVE_INFINITY
+            :default ##Inf
             :doc "Default: positive infinity."}
 
            {:name "start"
@@ -189,7 +189,7 @@
 
    {:name "Dgeom",
     :args [{:name "length"
-            :default Float/POSITIVE_INFINITY
+            :default ##Inf
             :doc "Default: positive infinity"}
 
            {:name "start"
@@ -312,7 +312,7 @@
    {:name "Dwhite",
     :args [
            {:name "length"
-            :default Float/POSITIVE_INFINITY
+            :default ##Inf
             :doc "Default: positive infinity" }
 
            {:name "lo"
@@ -334,7 +334,7 @@
 
    {:name "Dbrown",
     :args [{:name "length"
-            :default Float/POSITIVE_INFINITY
+            :default ##Inf
             :doc "Default: positive infinity"}
 
            {:name "lo"

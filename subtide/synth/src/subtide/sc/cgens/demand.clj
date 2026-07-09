@@ -35,14 +35,14 @@ When there is a trigger at the reset input, the demand rate ugens in the list an
   "Generate a series of incrementing values on demand."
   [start {:default 1 :doc "start value"}
    step {:default 1 :doc "step value"}
-   length {:default INF :doc "number of values to create"}]
+   length {:default ##Inf :doc "number of values to create"}]
   (:dr (internal:dseries:dr length start step)))
 
 (defcgen dgeom
   "Generate a geometric sequence on demand."
   [start {:default 1, :doc "start value"}
    grow {:default 2, :doc "value by which to grow ( x = x[-1] * grow )"}
-   length {:default INF :doc "doc number of values to create"}]
+   length {:default ##Inf :doc "doc number of values to create"}]
   "The arguments can be a number or any other ugen"
   (:dr (internal:dgeom:dr length start grow)))
 
@@ -59,14 +59,14 @@ When there is a trigger at the reset input, the demand rate ugens in the list an
   "Generate a sequence of random values in the continuous range between lo and hi."
   [lo {:default 0.0 :doc "minimum value"}
    hi {:default 1.0 :doc "maximum value"}
-   length {:default INF :doc "number of values to create"}]
+   length {:default ##Inf :doc "number of values to create"}]
   (:dr (internal:dwhite:dr length lo hi)))
 
 (defcgen diwhite
   "Generates a sequence of random integer values between lo and hi."
   [lo {:default 0.0 :doc "minimum value"}
    hi {:default 1.0 :doc "maximum value"}
-   length {:default INF :doc "number of values to create"}]
+   length {:default ##Inf :doc "number of values to create"}]
   "The arguments can be a number or any other ugen"
   (:dr (internal:diwhite:dr length lo hi)))
 
@@ -75,7 +75,7 @@ When there is a trigger at the reset input, the demand rate ugens in the list an
   [lo {:default 0.0 :doc "minimum value"}
    hi {:default 1.0 :doc "maximum value"}
    step {:default 0.01 :doc "maximum step for each new value"}
-   length {:default INF :doc "number of values to create"}]
+   length {:default ##Inf :doc "number of values to create"}]
   "The arguments can be a number or any other ugen"
   (:dr (internal:dbrown:dr length lo hi step)))
 
@@ -84,6 +84,6 @@ When there is a trigger at the reset input, the demand rate ugens in the list an
   [lo {:default 0.0 :doc "minimum value"}
    hi {:default 1.0 :doc "maximum value"}
    step {:default 0.01 :doc "maximum step for each new value"}
-   length {:default INF :doc "number of values to create"}]
+   length {:default ##Inf :doc "number of values to create"}]
   "The arguments can be a number or any other ugen"
   (:dr (internal:dibrown:dr length lo hi step)))
