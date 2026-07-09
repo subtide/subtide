@@ -118,7 +118,7 @@
 
    The fn foo is written in a recursive style, yet the recursion is
    scheduled for application 200ms in the future. By passing a function
-   using #'foo syntax instead of the symbole foo, when later called by
+   using #'foo syntax instead of the symbol foo, when later called by
    the scheduler it will lookup based on the symbol rather than using
    the instance of the function defined earlier. This allows us to
    redefine foo whilst the temporal recursion is continuing to execute.
@@ -161,7 +161,7 @@
 
    The fn foo is written in a recursive style, yet the recursion is
    scheduled for application 200ms in the future. By passing a function
-   using #'foo syntax instead of the symbole foo, when later called by
+   using #'foo syntax instead of the symbol foo, when later called by
    the scheduler it will lookup based on the symbol rather than using
    the instance of the function defined earlier. This allows us to
    redefine foo whilst the temporal recursion is continuing to execute.
