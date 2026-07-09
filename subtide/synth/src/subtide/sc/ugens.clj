@@ -7,7 +7,7 @@
   
   UGens that collide with clojure.core vars are available from subtide.sc.ugen-collide."
   {:author "Jeff Rose & Christophe McKeon"}
-  (:use [subtide.sc.machinery.ugen fn-gen]))
+  (:require [subtide.sc.machinery.ugen.fn-gen :as fn-gen]))
 
 ;; Done actions are typically executed when an envelope ends, or a sample ends
 (def NO-ACTION
@@ -75,6 +75,10 @@
    synth)"
   14)
 
+(def FREE-SELF-RESUME-NEXT
+  "Free this synth and resume the following node"
+  15)
+
 ;;FFT Windows
 (def SINE        0)
 (def HANN        1)
@@ -102,7 +106,7 @@
   [& body]
   (let [bindings (into [] (mapcat (fn [[orig overload]]
                                     [orig (symbol ugen-collide-ns-str (str overload))]))
-                       @overloaded-ugens*)]
+                       @fn-gen/overloaded-ugens*)]
     `(let ~bindings
        ~@body)))
 
@@ -110,4 +114,4 @@
 ;; parts of the Subtide system using a fixed namespace.  For example,
 ;; to automatically stick an Out ugen on synths that don't explicitly
 ;; use one.
-(defonce __INTERN-UGENS__ (intern-ugens))
+(defonce __INTERN-UGENS__ (fn-gen/intern-ugens))

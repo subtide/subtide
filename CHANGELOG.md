@@ -5,3 +5,4 @@
 - Remove `INFINITY`, `INF` vars
 - Fix race conditions in `control-proxy-value-atom`
 - Use `reset-vals!` in `subtide.schedule/switch!`
+- Add `FREE-SELF-RESUME-NEXT` var for `freeSelfResumeNext` action
