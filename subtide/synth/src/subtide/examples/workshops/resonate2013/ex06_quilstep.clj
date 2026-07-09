@@ -140,7 +140,6 @@
     (doseq [[id s] @sliders] (slider-handler id s x y))))
 
 ;; Define & launch the Quil sketch...
-#_:clj-kondo/ignore
 (defsketch Resonate
   :size [460 180]
   :title "Resonate 2013 Quilstep"

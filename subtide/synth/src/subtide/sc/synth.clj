@@ -436,7 +436,6 @@
                    [(conj ret ug) (conj visited ug) path])))]
     (first (reduce visit [[] #{} #{}] ugens))))
 
-#_:clj-kondo/ignore
 (comment
   ; Some test synths, while shaking out the bugs...
 (defsynth foo [] (out 0 (rlpf (saw [220 663]) (x-line:kr 20000 2 1 FREE))))

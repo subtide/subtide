@@ -1,5 +1,4 @@
 (ns subtide.examples.notation.mad
-  {:clj-kondo/config '{:linters {:unresolved-symbol {:level :off}}}}
   (:use subtide.live
         subtide.inst.synth))
 

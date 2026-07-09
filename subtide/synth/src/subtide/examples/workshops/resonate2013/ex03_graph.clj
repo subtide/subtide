@@ -13,7 +13,6 @@
   Accepts an optional title."
   ([f x1 x2] (simple-plot f x1 x2 ""))
   ([f x1 x2 title]
-   #_:clj-kondo/ignore
    (view (function-plot f x1 x2 :title title))))
 
 (defn plot-harmonics
