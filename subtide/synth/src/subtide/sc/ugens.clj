@@ -75,7 +75,7 @@
    synth)"
   14)
 
-(def FREE-SELF-RESUME-NEXT
+(def FREE-RESUME-AFTER
   "Free this synth and resume the following node"
   15)
 
