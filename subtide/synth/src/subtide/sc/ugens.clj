@@ -100,10 +100,10 @@
   overloaded fn in the ns subtide.sc.ugen-collide. These fns will
   revert back to original (Clojure) semantics if not passed with ugen args."
   [& body]
-  (let [bindings (flatten (map (fn [[orig overload]]
-                                 [orig (symbol ugen-collide-ns-str (str overload))])
-                               @overloaded-ugens*))]
-    `(let [~@bindings]
+  (let [bindings (into [] (mapcat (fn [[orig overload]]
+                                    [orig (symbol ugen-collide-ns-str (str overload))]))
+                       @overloaded-ugens*)]
+    `(let ~bindings
        ~@body)))
 
 ;; We refer all the ugen functions here so they can be access by other
