@@ -13,11 +13,12 @@
 (defn p
   ([elements]
    (p elements (now)))
-  ([[{:keys [synth amp pitch dur data]} & elements] t]
-   (let [next-t (+ t (* 1000 dur))]
-     (at t (synth pitch amp dur))
-     (when elements
-       (apply-by next-t #'p elements [next-t])))))
+  ([elements t]
+   (when-some [[{:keys [synth amp pitch dur data]} & elements] (seq elements)]
+     (let [next-t (+ t (* 1000 dur))]
+       (at t (synth pitch amp dur))
+       (when elements
+         (apply-by next-t #'p elements [next-t]))))))
 
 (declare calc-duration)
 
