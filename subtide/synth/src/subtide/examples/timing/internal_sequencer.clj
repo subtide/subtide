@@ -66,9 +66,9 @@
   [buf 0 rate 1 out-bus 0 beat-num 0 sequencer 0 amp 1]
   (let [cnt      (in:kr beat-cnt-bus)
         beat-trg (in:kr beat-trg-bus)
-        bar-trg  (and (buf-rd:kr 1 sequencer cnt)
-                      (= beat-num (mod cnt 8))
-                      beat-trg)
+        bar-trg  (bit-and (buf-rd:kr 1 sequencer cnt)
+                          (= beat-num (mod cnt 8))
+                          beat-trg)
         vol      (set-reset-ff bar-trg)]
     (out
      out-bus (* vol
