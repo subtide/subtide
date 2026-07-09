@@ -1,2 +1,9 @@
 {:deps {org.subtide/subtide.synth {:local/root "subtide/synth"}
-        org.subtide/subtide.schedule {:local/root "subtide/schedule"}}}
+        org.subtide/subtide.schedule {:local/root "subtide/schedule"}}
+ :aliases {:nrepl
+           {:extra-deps  {nrepl/nrepl       {:mvn/version  "1.7.0"}
+                          cider/cider-nrepl  {:mvn/version  "0.62.0"}}
+            :extra-paths ["dev/src"]
+            :main-opts  ["-m"  "subtide.dev.cmdline"
+                         "--middleware"  "[cider.nrepl/cider-middleware]"
+                         "--interactive"]}}}

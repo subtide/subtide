@@ -4,6 +4,34 @@ A fork of the [Overtone](https://github.com/overton) ecosystem.
 
 ## Usage
 
+### Debian 13
+
+Install [Homebrew](https://brew.sh).
+
+```bash
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+```
+
+Install [Supercollider](https://supercollider.github.io/).
+
+```bash
+sudo apt-get update
+sudo apt-get install supercollider sc3-plugins pipewire-jack qpwgraph
+```
+
+Install Pipewire/Jack tools:
+
+```bash
+sudo apt-get update
+sudo apt-get install pipewire-jack qpwgraph
+```
+
+Install [Clojure](https://supercollider.github.io/).
+
+```bash
+brew install clojure/tools/clojure
+```
+
 ```clojure
 $ pw-jack clj
 Clojure 1.12.5
