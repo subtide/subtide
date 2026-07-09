@@ -41,6 +41,15 @@
 
    (clip2 (+ bass kick snare) 1)))
 
-;;(dubstep)
-;;(ctl dubstep :wobble-factor 3)
-;;(stop)
+(comment
+  (dubstep)
+  (ctl dubstep :bpm 300)
+  (ctl dubstep :wobble-factor 3.2)
+  (doseq [i (range 50 40 -0.1)]
+    (Thread/sleep 50)
+    (ctl dubstep :note i))
+  (doseq [i (range 120 150 0.5)]
+    (Thread/sleep 50)
+    (ctl dubstep :bmp i))
+  (ctl dubstep :wobble-factor 1)
+  (stop))
