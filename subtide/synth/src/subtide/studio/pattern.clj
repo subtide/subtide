@@ -172,7 +172,7 @@
   ([start step]
    (iterate #(+ step %) start))
   ([start step size]
-   (if (= Float/POSITIVE_INFINITY size)
+   (if (= ##Inf size)
      (pseries start step)
      (take size (pseries start step)))))
 

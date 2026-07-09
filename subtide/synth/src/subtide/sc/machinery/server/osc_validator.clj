@@ -254,12 +254,12 @@
   [name]
   (let [sig (OSC-TYPE-SIGNATURES name)]
     (if (some many-type? sig)
-      Float/POSITIVE_INFINITY
+      ##Inf
       (count sig))))
 
 (defn- arity-mismatch?
   [s-arity a-arity]
-  (and (not (= Float/POSITIVE_INFINITY s-arity))
+  (and (not (= ##Inf s-arity))
        (not (= s-arity a-arity))))
 
 (defn- error-args
