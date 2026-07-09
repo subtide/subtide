@@ -4,3 +4,4 @@
 - Support `##Inf` and `##-Inf` conversion to float within ugens
 - Remove `INFINITY` var
 - Fix race conditions in `control-proxy-value-atom`
+- Use `reset-vals!` in `subtide.schedule/switch!`

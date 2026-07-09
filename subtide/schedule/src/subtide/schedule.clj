@@ -83,11 +83,7 @@
   "Sets the value of atom to new-val. Similar to reset! except returns the
   immediately previous value."
   [atom new-val]
-  (let [old-val  @atom
-        success? (compare-and-set! atom old-val new-val)]
-    (if success?
-      old-val
-      (recur atom new-val))))
+  (first (reset-vals! atom new-val)))
 
 (defn- cpu-count
   "Returns the number of CPUs on this machine."

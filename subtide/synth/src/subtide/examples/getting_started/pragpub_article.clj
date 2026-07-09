@@ -1,6 +1,5 @@
-(ns subtide.examples.getting-started.pragpub-article
-  {:clj-kondo/config '{:linters {:unresolved-symbol {:level :off}
-                                 :invalid-arity {:level :off}}}})
+(ns subtide.examples.getting-started.pragpub-article)
+
 ;; Making Music with Clojure
 ;; Live Coding is all the Rage at Raves
 ;; By Sam Aaron
