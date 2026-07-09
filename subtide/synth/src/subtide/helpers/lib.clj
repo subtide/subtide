@@ -28,7 +28,13 @@
    return val"
   [val]
   (cond
-    (number? val) (float val)
+    (number? val) (if (double? val)
+                    (if (.isInfinite ^Double val)
+                      (if (pos? val)
+                        Float/POSITIVE_INFINITY
+                        Float/NEGATIVE_INFINITY)
+                      (float val))
+                    (float val))
     (true? val)   (float 1)
     (false? val)  (float 0)
     :else val))

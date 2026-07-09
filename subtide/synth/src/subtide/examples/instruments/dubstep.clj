@@ -4,7 +4,7 @@
 (defsynth dubstep [bpm 120 wobble 1 note 50 snare-vol 1 kick-vol 1 v 1 out-bus 0]
  (let [trig (impulse:kr (/ bpm 120))
        freq (midicps note)
-       swr (demand trig 0 (dseq [wobble] INF))
+       swr (demand trig 0 (dseq [wobble] ##Inf))
        sweep (lin-exp (lf-tri swr) -1 1 40 3000)
        wob (apply + (saw (* freq [0.99 1.01])))
        wob (lpf wob sweep)
