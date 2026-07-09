@@ -43,6 +43,7 @@
 ;;
 ;; Directly translated to Subtide:
 
+(stop)
 (demo 60
       (let [bpm     120
             ;; create pool of notes as seed for random base line sequence
@@ -50,7 +51,9 @@
             ;; create an impulse trigger firing once per bar
             trig    (impulse:kr (/ bpm 120))
             ;; create frequency generator for a randomly picked note
-            freq    (midicps (lag (demand trig 0 (dxrand notes ##Inf)) 0.25))
+            freq    (-> (demand trig 0 (dxrand notes ##Inf))
+                        (lag 0.25)
+                        midicps)
             ;; switch note durations
             swr     (demand trig 0 (dseq [1 6 6 2 1 2 4 8 3 3] ##Inf))
             ;; create a sweep curve for filter below
@@ -67,20 +70,25 @@
             wob     (+ wob (* 0.2 (g-verb wob 9 0.7 0.7)))
 
             ;; create impulse generator from given drum pattern
-            kickenv (decay (t2a (demand (impulse:kr (/ bpm 30)) 0 (dseq [1 0 0 0 0 0 1 0 1 0 0 1 0 0 0 0] INF))) 0.7)
+            kickenv (-> bpm
+                        (/ 30)
+                        impulse:kr
+                        (demand 0 (dseq [1 0 0 0 0 0 1 0 1 0 0 1 0 0 0 0] ##Inf))
+                        t2a
+                        (decay 0.7))
             ;; use modulated sine wave oscillator
             kick    (* (* kickenv 7) (sin-osc (+ 40 (* kickenv kickenv kickenv 200))))
             ;; clip at max volume to create distortion
             kick    (clip2 kick 1)
 
             ;; snare is just using gated & over-amplified pink noise
-            snare   (* 3 (pink-noise) (apply + (* (decay (impulse (/ bpm 240) 0.5) [0.4 2]) [1 0.05])))
+            snare   (* 3 (pink-noise) (sum (* (decay (impulse (/ bpm 240) 0.5) [0.4 2]) [1 0.05])))
             ;; send through band pass filter with peak @ 2kHz
             snare   (+ snare (bpf (* 4 snare) 2000))
             ;; also clip at max vol to distort
             snare   (clip2 snare 1)]
    ;; mixdown & clip
-   (clip2 (+ wob kick snare) 1)))
+   (-> (+ wob kick snare) (clip2 1))))
 
 (comment
   (stop)
