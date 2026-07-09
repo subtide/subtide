@@ -1,5 +1,4 @@
 (ns subtide.core
-  (:refer-clojure :exclude [abs])
   (:require [subtide.api]))
 
 (subtide.api/immigrate-subtide-api)

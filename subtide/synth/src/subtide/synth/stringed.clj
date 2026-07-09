@@ -7,7 +7,6 @@
 (ns subtide.synth.stringed
   "A Stringed Synth Generator Macro & Guitar Instrument"
   {:author "Roger Allen"}
-  (:refer-clojure :exclude [abs])
   (:use [subtide.music pitch time]
         [subtide.sc envelope node server synth ugens]
         [subtide.sc.cgens mix]))

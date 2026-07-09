@@ -2,8 +2,7 @@
     and its sc port by Scott Wilson."
       :author "Orm Finnendahl"
       :date "06/06/2015"}
-    subtide.sc.vbap
-  (:refer-clojure :exclude [abs]))
+    subtide.sc.vbap)
 
 ;; VBAP originally created by Ville Pukki
 ;; This version is a complete reimplementation
@@ -21,8 +20,6 @@
 
 (defn- sqr [n] (* n n))
 (defn- sqrt [n] (Math/sqrt n))
-(defn- abs [n] (max n (- n)))
-;; (defn- mabs [n] (Math/abs n))
 (defn- acos [n] (Math/acos n))
 (defn- cos [n] (Math/cos n))
 (defn- sin [n] (Math/sin n))
