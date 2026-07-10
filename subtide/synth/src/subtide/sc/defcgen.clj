@@ -6,24 +6,28 @@
   (:use [clojure.walk :as walk]
         [subtide.helpers lib]
         [subtide.sc ugens]
-        [subtide.sc.machinery.ugen defaults fn-gen doc]))
+        [subtide.sc.machinery.ugen defaults fn-gen doc])
+  (:import [java.io Writer]))
 
 ;; TODO: add ICgen interface
 ;; because proxy and print-method (::cgen this case)
-;; wont play well togeater.
+;; wont play well together.
 
 (defn parse-cgen-params
   "Parse a defcgen's param list throwing exceptions where it isn't well-formed
   Returns a list of maps containing at least the key :name"
   [params]
   (when-not (vector? params)
-    (throw (IllegalArgumentException. (str "defcgen expected a vector of arguments, instead it found a " (class params) ", " params))))
+    (throw (ex-info (str "defcgen expected a vector of arguments, instead it found a " (class params) ", " params)
+                    {})))
   (loop [parsed []
          to-parse params]
     (if (empty? to-parse)
       parsed
-      (if (not (symbol? (first to-parse)))
-        (throw (IllegalArgumentException. (str "Expecting a symbol describing the cgen param name. Instead got a " (class (first to-parse)) ": " (first to-parse))))
+      (if-not (symbol? (first to-parse))
+        (throw (ex-info (str "Expecting a symbol describing the cgen param name. Instead got a "
+                             (class (first to-parse)) ": " (first to-parse))
+                        {}))
 
         (if (map? (second to-parse))
           (recur (conj parsed (merge (second to-parse) {:name (keyword (name (first to-parse)))}))
@@ -36,7 +40,8 @@
   Returns the default rate and a map of rates to associated bodies"
   [bodies]
   (when (empty? bodies)
-    (throw (IllegalArgumentException. (str "defcgen was expecting one or more bodies implementing the various rates this cgen will support i.e. (:ar (sin-osc 440))"))))
+    (throw (ex-info "defcgen was expecting one or more bodies implementing the various rates this cgen will support i.e. (:ar (sin-osc 440))"
+                    {})))
   (let [[rate bodies]
         (loop [default-rate nil
                parsed       {}
@@ -51,16 +56,22 @@
                               (= :ir (first body))
                               (= :kr (first body))
                               (= :dr (first body)))
-                    (throw (IllegalArgumentException. (str "defcgen was expecting on of the following keywords as the first item in each cgen body form: :ar, :ir, :kr, :dr or :default. Found " (first body))))
+                    (throw (ex-info (str "defcgen was expecting on of the following keywords"
+                                         " as the first item in each cgen body form: :ar, :ir, :kr, :dr or :default. Found "
+                                         (first body))
+                                    {}))
                     (recur default-rate (assoc parsed (first body) (second body)) (rest to-parse)))
-                  (throw (IllegalArgumentException. (str "defcgen was expecting each of the bodies to have two elements - a rate and an implementation form"))))))))
+                  (throw (ex-info "defcgen was expecting each of the bodies to have two elements - a rate and an implementation form"
+                                  {})))))))
         default-rate  (if rate
                         rate
                         (if (= 1 (count bodies))
                           (ffirst bodies)
                           (default-ugen-rate (keys bodies))))]
     (when-not (get bodies default-rate)
-      (throw (IllegalArgumentException. (str "defcgen's default rate needs to have an implementation. Please supply an implementation for rate: " default-rate))))
+      (throw (ex-info (str "defcgen's default rate needs to have an implementation. Please supply an implementation for rate: "
+                           default-rate)
+                      {})))
     [default-rate bodies]))
 
 (defn- cgen-form
@@ -87,25 +98,26 @@
 (defn- syms->sym-gensym-pairs
   "Given a seq of symbols, creates a new seq of symbol gensym pairs"
   [syms]
-  (into {} (doall (map (fn [sym] [(symbol (name sym)) (gensym (name sym))]) syms))))
+  (into {} (map (fn [sym] [(symbol (name sym)) (gensym (name sym))]))
+        syms))
 
 (defn- mk-cgen-fn
   "Make the function which gets executed when a cgen is called."
   [params body]
   (let [expand-flags (map #(or (:expands? %) false) params)
-        param-names  (vec (map :name params))
+        param-names  (mapv :name params)
         defaults     (reduce (fn [s el] (assoc s (:name el) (:default el)))
-                             {}
-                             params)
+                             {} params)
         arg-sym      (gensym 'arg-sym)
         sym-gensyms  (syms->sym-gensym-pairs param-names)
         bindings     (reduce (fn [final param]
-                               (conj final (get sym-gensyms (symbol (name param))) `(get (arg-mapper ~arg-sym ~param-names ~defaults) ~param)))
-                             []
-                             param-names)
-        body         (walk/prewalk-replace sym-gensyms body )
+                               (conj final
+                                     (get sym-gensyms (symbol (name param)))
+                                     `(get (arg-mapper ~arg-sym ~param-names ~defaults) ~param)))
+                             [] param-names)
+        body         (walk/prewalk-replace sym-gensyms body)
         cgen-fn      `(fn [& ~arg-sym]
-                        (let [~@bindings]
+                        (let ~bindings
                           (with-overloaded-ugens
                             ~body)))]
 
@@ -161,7 +173,7 @@
 (defn- mk-default-cgen
   [rated-defs rate]
   (if (= :auto rate)
-    (throw (Exception. "Auto-rated cgens not supported (yet)"))
+    (throw (ex-info "Auto-rated cgens not supported (yet)" {}))
     (get rated-defs rate)))
 
 (defmacro defcgen
@@ -187,9 +199,9 @@
     (:default :ar))"
   [c-name & c-form]
   (let [[summary doc params bodies default-rate] (cgen-form c-form)
-        arglists       (list (vec (map #(symbol (name (:name %))) params)))
-        arglists       (list 'quote arglists)
-        rates          (into #{} (keys bodies))
+        arglists       (list (mapv #(symbol (name (:name %))) params))
+        arglists       (list `quote arglists)
+        rates          (into #{} (map key) bodies)
         categories     [["Composite Ugen"]]
         full-doc       (generate-full-cgen-doc c-name summary doc categories default-rate params rates)
         metadata       {:doc full-doc
@@ -215,6 +227,6 @@
                                   `(def ~c-name ~cgen))))]
     `(do ~@cgen-defs)))
 
-(defmethod print-method ::cgen [cgen ^java.io.Writer w]
+(defmethod print-method ::cgen [cgen ^Writer w]
   (let [info (meta cgen)]
     (.write w (format "#<cgen: %s>" (:name info)))))
