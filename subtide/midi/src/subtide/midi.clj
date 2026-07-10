@@ -137,8 +137,7 @@
                   (midi-device? in) in)]
      (if source
        (with-transmitter source)
-       (throw (IllegalArgumentException.
-               (str "Did not find a matching midi input device for: " in)))))))
+       (throw (ex-info (str "Did not find a matching midi input device for: " in) {}))))))
 
 (defn midi-out
   "Open a midi output device for writing.  If no argument is given
@@ -152,8 +151,7 @@
                       (midi-device? out) out)]
            (if sink
              (with-receiver sink)
-             (throw (IllegalArgumentException.
-                     (str "Did not find a matching midi output device for: " out )))))))
+             (throw (ex-info (str "Did not find a matching midi output device for: " out) {}))))))
 
 (defn midi-route
   "Route midi messages from a source to a sink.  Expects transmitter

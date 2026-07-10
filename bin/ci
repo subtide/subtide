@@ -15,3 +15,8 @@ popd
 #pushd subtide/osc
 #  ./bin/ci
 #pop
+
+# TODO
+#pushd subtide/midi
+#  ./bin/ci
+#pop

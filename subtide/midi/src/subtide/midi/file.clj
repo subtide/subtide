@@ -1,9 +1,9 @@
 (ns subtide.midi.file
+  (:require [subtide.midi :refer (midi-msg)])
   (:import java.io.File
            java.net.URL
            [javax.sound.midi MidiSystem MidiFileFormat Sequence Track
-            MetaMessage ShortMessage])
-  (:use [subtide.midi :only (midi-msg)]))
+            MetaMessage ShortMessage]))
 
 (defn- midi-division-type
   [info]
