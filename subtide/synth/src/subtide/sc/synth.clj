@@ -166,8 +166,7 @@
          todo   grouped-params
          offset 0]
     (if (empty? todo)
-      (filter #(not (nil? %))
-              [(:ir done) (:tr done) (:ar done) (:kr done)])
+      (filter some? [(:ir done) (:tr done) (:ar done) (:kr done)])
       (let [group      (first todo)
             group-rate (:rate (first group))
             group-size (count group)
@@ -188,8 +187,7 @@
                                 rate-group (get mem rate [])]
                             (assoc mem rate (conj rate-group param))))
                         {} params)]
-    (filter some?
-            [(:ir by-rate) (:tr by-rate) (:ar by-rate) (:kr by-rate)])))
+    (filter some? [(:ir by-rate) (:tr by-rate) (:ar by-rate) (:kr by-rate)])))
 
 (def DEFAULT-RATE :kr)
 
