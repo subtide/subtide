@@ -14,7 +14,7 @@
    (subtide.music rhythm pitch tuning time)
    (subtide.repl debug examples graphviz
                   inst shell ugens)
-   (subtide.samples freesound)
+   [subtide.freesound]
    (subtide.sc bindings buffer bus envelope example info
                 ugens defcgen node sample server synth clock
                 foundation-groups dyn-vars trig vbap)
@@ -72,7 +72,7 @@
    'subtide.repl.inst
    'subtide.repl.shell
    'subtide.repl.ugens
-   'subtide.samples.freesound
+   'subtide.freesound
    'subtide.sc.bindings
    'subtide.sc.buffer
    'subtide.sc.bus

@@ -1,15 +1,21 @@
-(ns ^{:doc "Basic URL encoding and decoding. Various versions of these functions can found in other Clojure librarys."
-      :author "Kevin Neaton"}
-  subtide.samples.freesound.url
-  (:use [clojure.walk :only [keywordize-keys]])
-  (:require [clojure.string :as str])
+(ns subtide.freesound.url
+  "Basic URL encoding and decoding. Various versions of these functions can found in other Clojure librarys."
+  {:author "Kevin Neaton"}
+  (:require [clojure.string :as str]
+            [clojure.walk :as walk])
   (:import [java.net URLEncoder URLDecoder]))
 
-(defn url-encode [^java.lang.String s & [^java.lang.String encoding]]
-  (URLEncoder/encode s  (or encoding "UTF-8")))
+(set! *warn-on-reflection* true)
 
-(defn url-decode [^java.lang.String s & [^java.lang.String encoding]]
-  (URLDecoder/decode s (or encoding "UTF-8")))
+(defn url-encode
+  ([s] (url-encode s nil))
+  ([^String s ^String encoding]
+   (URLEncoder/encode s (or encoding "UTF-8"))))
+
+(defn url-decode
+  ([s] (url-decode s nil))
+  ([^String s ^String encoding]
+   (URLDecoder/decode s (or encoding "UTF-8"))))
 
 (defn encode-query
   "Create a url encoded query string from a map of query paremeters."
@@ -23,7 +29,7 @@
   map keys and assumes there are no duplicates."
   [s] (->> (str/split (url-decode s) #"[&=]")
            (apply hash-map)
-           (keywordize-keys)))
+           (walk/keywordize-keys)))
 
 (defn- split-url
   "Split url into three parts: base, query, and fragment."

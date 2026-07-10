@@ -1,7 +1,7 @@
-(ns ^{:doc "A custom datatype and helper functions for working with a lazy sequence of search results."
-      :author "Kevin Neaton"}
-  subtide.samples.freesound.search-results
-  (:use [subtide.samples.freesound.url :only [build-url]]))
+(ns subtide.freesound.search-results
+  "A custom datatype and helper functions for working with a lazy sequence of search results."
+  {:author "Kevin Neaton"}
+  (:require [subtide.freesound.url :as url]))
 
 (deftype SearchResults [n-results ^clojure.lang.LazySeq results-seq]
   clojure.lang.Sequential
@@ -58,7 +58,7 @@
   (let [params (assoc params :api_key key)]
     (fn [resp]
       (when-let [next-url (:next resp)]
-        (build-url next-url params)))))
+        (url/build-url next-url params)))))
 
 (defn api-seq
   "Returns a lazy seq of paginated api responses. Retrieves the resource at

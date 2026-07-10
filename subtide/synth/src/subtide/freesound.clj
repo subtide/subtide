@@ -1,4 +1,4 @@
-(ns subtide.samples.freesound
+(ns subtide.freesound
   "An API for interacting with the awesome free online sample resource
   freesound.org"
   {:author "Sam Aaron, Kevin Neaton"}
@@ -7,8 +7,8 @@
    [clojure.java.browse]
    [clojure.java.io :as io]
    [clojure.pprint :as pp]
-   [subtide.samples.freesound.search-results :refer :all]
-   [subtide.samples.freesound.url :refer :all]
+   [subtide.freesound.search-results :refer :all]
+   [subtide.freesound.url :refer :all]
    [subtide.sc.node :refer :all]
    [subtide.config.store :as config]
    [subtide.helpers.file :refer [*authorization-header* file-extension]]
@@ -175,7 +175,7 @@
                       (deliver done true))))
           ;; open dialog box if allowed
           _ (when (and (not (GraphicsEnvironment/isHeadless))
-                       (not (= "false" (System/getProperty "subtide.samples.freesound.auth-dialog-box"))))
+                       (not (= "false" (System/getProperty "subtide.freesound.auth-dialog-box"))))
               (vreset! close-dialog (dialog-box write)))
           ;; wait for stdin
           _ (future

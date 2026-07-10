@@ -9,3 +9,4 @@
 - Fix double expansion in `defcheck`
 - Remove deprecated vars `connect-external-server`, `boot-internal-server`
 - Remove `freesound-searchm`
+- Rename `subtide.samples.freesound` namespaces to `subtide.freesound`
