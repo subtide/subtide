@@ -88,6 +88,7 @@
 
 (deftest read-write-test []
   (is TOM-DEF {:pwd (System/getProperty "user.dir")
-               :classpath (System/getProperty "java.class.path")})
+               :classpath (System/getProperty "java.class.path")
+               :file (.exists (io/file "test-resources/subtide/data/tom.scsyndef"))})
   (rw-file-test TOM-DEF)
   (rw-file-test KICK-DEF))
