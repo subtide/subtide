@@ -1,6 +1,9 @@
 {:deps {org.subtide/subtide.synth {:local/root "subtide/synth"}
         org.subtide/subtide.schedule {:local/root "subtide/schedule"}}
- :aliases {:nrepl
+ :aliases {:test {:extra-paths ["subtide/synth/test" "subtide/synth/test-resources"]
+                  :extra-deps {nubank/matcher-combinators {:mvn/version "3.9.1"}
+                               org.clojure/test.check     {:mvn/version "1.1.1"}}}
+           :nrepl
            {:extra-deps  {nrepl/nrepl       {:mvn/version  "1.7.0"}
                           cider/cider-nrepl  {:mvn/version  "0.62.0"}}
             :extra-paths ["dev/src"]

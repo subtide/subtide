@@ -1,5 +1,6 @@
 (ns subtide.sc.synthdef-test
-  (:require [clojure.test :as t :refer [deftest is]]
+  (:require [clojure.java.io :as io]
+            [clojure.test :as t :refer [deftest is]]
             [subtide.config.log :as log]
             [subtide.sc.synth :refer [pre-synth synthdef]]
             [subtide.sc.ugens :refer [out:ar sin-osc:ar]]
@@ -77,8 +78,8 @@
     (is (= {:src -1, :index 0} (first (:inputs out))))
     (is (= {:src 1, :index 0} (second (:inputs out))))))
 
-(def TOM-DEF "test/data/tom.scsyndef")
-(def KICK-DEF "test/data/round-kick.scsyndef")
+(def TOM-DEF (io/resource "subtide/data/tom.scsyndef"))
+(def KICK-DEF (io/resource "subtide/data/round-kick.scsyndef"))
 
 (defn rw-file-test [path]
   (let [a (synthdef-read path)
