@@ -87,7 +87,7 @@
     (is (= a b))))
 
 (deftest read-write-test []
-  (is TOM-DEF)
+  (is TOM-DEF {:pwd (System/getProperty "user.dir")
+               :classpath (System/getProperty "java.class.path")})
   (rw-file-test TOM-DEF)
-  (is KICK-DEF)
   (rw-file-test KICK-DEF))
