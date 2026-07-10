@@ -7,4 +7,4 @@
 - Use `reset-vals!` in `subtide.schedule/switch!`
 - Add `FREE-RESUME-AFTER` var for `freeSelfResumeNext` action
 - Fix double expansion in `defcheck`
-- Remove `connect-external-server`
+- Remove deprecated vars `connect-external-server`, `boot-internal-server`

@@ -184,7 +184,7 @@
                    (= :disconnected @connection-status*))
        (dosync
         (ref-set connection-status* :disconnected))
-       (throw (Exception. "Can't connect as a server is already connected/connecting!")))
+       (throw (ex-info "Can't connect as a server is already connected/connecting!" {})))
      (.run (Thread. #(external-connection-runner host port)))))
 
 (defn- osc-msg-decoder
@@ -225,13 +225,13 @@
   "Boot thread to start the external audio server process and hook up to
   STDOUT for log messages."
   ([cmd] (external-booter cmd "."))
-  ([^"[Ljava.lang.String;" cmd ^java.lang.String working-dir]
+  ([^"[Ljava.lang.String;" cmd ^String working-dir]
    (log/info "Booting external audio server with cmd: " (seq cmd) ", and working directory: " working-dir)
    (let [working-dir  (File. working-dir)
          proc-builder (doto (ProcessBuilder. cmd)
                         (.directory (io/file working-dir)))
          proc         (pipe-scsynth-output (.start proc-builder))]
-     (while (not (= :disconnected @connection-status*))
+     (while (not= :disconnected @connection-status*)
        (Thread/sleep 250))
      (.destroy ^Process proc))))
 
@@ -241,19 +241,22 @@
   [sc-arg]
   (let [flag (-> sc-arg args/SC-ARG-INFO :flag)]
     (when-not flag
-      (throw (Exception. (str "Error booting external SuperCollider server: unable to find flag for SC argument: " sc-arg))))
+      (throw (ex-info (str "Error booting external SuperCollider server: unable to find flag for SC argument: "
+                           sc-arg)
+                      {})))
     flag))
 
 (defn- scsynth-arglist
   "Returns a sequence of args suitable for use as arguments to the scsynth command"
   [args]
-  (when (not= 1 (:realtime? args))
-    (throw (Exception. "Non-realtime server mode not currently supported. Patches accepted - please contact the mailing list.")))
+  (when-not (= 1 (:realtime? args))
+    (throw (ex-info "Non-realtime server mode not currently supported." {})))
   (let [udp?        (:udp? args)
         port        (:port args)
         ugens-paths (or (:ugens-paths args) [])
         args        (select-keys args (keys args/SC-ARG-INFO))
-        args        (dissoc args :udp? :port :realtime? :nrt-cmd-filename :nrt-output-filename :nrt-output-header-format :nrt-output-sample-format)
+        args        (dissoc args :udp? :port :realtime? :nrt-cmd-filename :nrt-output-filename
+                            :nrt-output-header-format :nrt-output-sample-format)
         args        (args/linux-jack-device-name args)
         port-arg    (if (= 1 udp?)
                       ["-u" port]
@@ -281,7 +284,8 @@
         sc-wellknown (delay (file/find-well-known-sc-path defaults/SC-PATHS))
         match (or sc-config @sc-path @sc-wellknown)]
     (when-not match
-      (throw (ex-info (str "Failed to find SuperCollider server executable (scsynth). The file does not exist or is not executable. Places I've looked:\n"
+      (throw (ex-info (str "Failed to find SuperCollider server executable (scsynth)."
+                           " The file does not exist or is not executable. Places I've looked:\n"
                            "- `:sc-path` in " config/SUBTIDE-CONFIG-FILE " (" (pr-str sc-config) ")\n"
                            "- The current PATH (" (System/getenv "PATH") ")\n"
                            "- Well-known locations " (seq (defaults/SC-PATHS (get-os)))"")
@@ -325,7 +329,7 @@
   specific port."
   ([port opts]
    (when-not (= :booting @connection-status*)
-     (throw (Exception. "Can't boot external server as a server is already connected/connecting!")))
+     (throw (ex-info "Can't boot external server as a server is already connected/connecting!" {})))
    (log/debug "booting external server")
    (let [full-opts (args/merge-sc-args opts {:port port})
          cmd       (sc-command full-opts)
@@ -344,17 +348,11 @@
      (connect "127.0.0.1" port)
      :booting)))
 
-(defn ^:deprecated boot-internal-server [& args]
-  (log/warn "Subtide no longer contains an internal server, booting external server instead.")
-  (apply boot-server args))
-
 (defn- transient-connection-info
   "Build the connection-info for booting an internal or external server."
   [connection-type port]
-  (merge {:connection-type connection-type}
-         (case connection-type
-           :internal {}
-           :external {:port port :host "127.0.0.1"})))
+  (cond-> {:connection-type connection-type}
+    (= connection-type :external) (into {:port port :host "127.0.0.1"})))
 
 (defn boot
   "Boot either the internal or external audio server. If specified port
@@ -371,7 +369,7 @@
   ([connection-type port opts]
    (locking connection-info*
      (when-not (= :disconnected @connection-status*)
-       (throw (Exception. "Can't boot as a server is already connected/connecting!")))
+       (throw (ex-info "Can't boot as a server is already connected/connecting!" {})))
 
      (dosync
       (ref-set connection-status* :booting))
@@ -381,8 +379,9 @@
                (transient-connection-info connection-type port)))
 
      (let [port (or port (get-free-port))]
-       (when (not= :external connection-type)
-         (log/warn "Only :external connection type is supported, :connection-type " connection-type " ignored. (" config/SUBTIDE-CONFIG-FILE ")"))
+       (when-not (= :external connection-type)
+         (log/warn "Only :external connection type is supported, :connection-type "
+                   connection-type " ignored. (" config/SUBTIDE-CONFIG-FILE ")"))
        (boot-server port opts)
        (deps/wait-until-deps-satisfied :server-ready)))
    (print-ascii-art-subtide-logo
