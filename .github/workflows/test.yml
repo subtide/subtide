@@ -7,27 +7,29 @@ on:
     branches: main
   pull_request:
 
+env:
+  ACTION_CACHE_VERSION: v1
+
 jobs:
   build:
     timeout-minutes: 5
-    name: "${{matrix.title}} (${{matrix.os}}, ${{matrix.arch}}, Java ${{matrix.java}}, Clojure ${{matrix.clojure}})"
+    name: "${{matrix.title}} (${{matrix.os}}, ${{matrix.arch}}, Java ${{matrix.java}})"
     runs-on: ${{matrix.os}}
     strategy:
       fail-fast: false
       matrix:
         include:
-          - {title: "Linux", os: "ubuntu-latest", arch: "x64", java: "11", clojure: "1.12"}
-          #- {title: "Windows", os: "windows-latest", arch: "x64", java: "11", clojure: "1.12"}
-          #- {title: "Mac", os: "macos-latest", arch: "arm64", java: "11", clojure: "1.12"}
+          - {title: "Linux", os: "ubuntu-latest", arch: "x64", java: "21", clojure: "1.12"}
+          #- {title: "Windows", os: "windows-latest", arch: "x64", java: "21", clojure: "1.12"}
+          #- {title: "Mac", os: "macos-latest", arch: "arm64", java: "21", clojure: "1.12"}
     steps:
       - uses: actions/checkout@v4
 
       - uses: actions/cache@v4
         with:
           path: ~/.m2/repository
-          key: ${{ env.ACTION_CACHE_VERSION }}-${{ runner.os }}-maven-${{ matrix.java }}-${{ matrix.clojure }}-${{ hashFiles('**/deps.edn') }}
+          key: ${{ env.ACTION_CACHE_VERSION }}-${{ runner.os }}-maven-${{ matrix.java }}-${{ hashFiles('**/deps.edn') }}
           restore-keys: |
-            ${{ env.ACTION_CACHE_VERSION }}-${{ runner.os }}-maven-${{ matrix.java }}-${{ matrix.clojure }}
             ${{ env.ACTION_CACHE_VERSION }}-${{ runner.os }}-maven-${{ matrix.java }}-
             ${{ env.ACTION_CACHE_VERSION }}-${{ runner.os }}-maven-
 
@@ -78,13 +80,13 @@ jobs:
         if: matrix.os == 'ubuntu-latest'
 
       - name: Subtonic tests - Mac
-        run: ./bin/ci ${{matrix.clojure}}
+        run: ./bin/ci
         if: matrix.os == 'macos-latest'
 
       - name: Subtonic tests - Linux
         run: |
           jackd -rd dummy &
-          ./bin/ci ${{matrix.clojure}}
+          ./bin/ci
         if: matrix.os == 'ubuntu-latest'
 
       - name: API Tests Windows - Install Scream Audio Device
@@ -104,7 +106,7 @@ jobs:
 
       - name: Subtonic tests - Windows
         shell: powershell
-        run: clojure -M:test:test-runner:${{matrix.clojure}}
+        run: clojure -M:test:test-runner
         if: matrix.os == 'windows-latest'
 
       #- name: Archive Logs
