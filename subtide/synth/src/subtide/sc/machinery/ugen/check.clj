@@ -2,9 +2,10 @@
   ^{:doc "UGen argument validation functions."
      :author "Jeff Rose & Christophe McKeon"}
   subtide.sc.machinery.ugen.check
-  (:use [subtide.helpers.math :only [power-of-two?]]
-        [subtide.sc.machinery.ugen defaults sc-ugen]
-        [subtide.helpers.lib :only [subtide-ugen-name]]))
+  (:require [clojure.set :as set]
+            [subtide.helpers.lib :as lib]
+            [subtide.helpers.math :as math])
+  (:use [subtide.sc.machinery.ugen defaults sc-ugen]))
 
 (defn rate-name= [obj rate]
   (= (:rate-name obj) rate))
@@ -14,8 +15,8 @@
 
 (defn name-of [obj]
   (if (:name obj)
-    (subtide-ugen-name (:name obj))
-    (with-out-str (pr obj))))
+    (lib/subtide-ugen-name (:name obj))
+    (pr-str obj)))
 
 (defn name-of? [obj name]
   (= (name-of obj) name))
@@ -57,15 +58,25 @@
 (defn dr? [obj] (= (:rate-name obj) :dr))
 
 (defmacro defcheck [name params default-message & exprs]
+  {:pre [(simple-symbol? name)
+         (vector? params)
+         ;; to ease intersection check
+         (every? simple-symbol? params)]}
   (let [message (gensym "message")
-        params-with-message (conj params message)]
-    `(defn ~name
-       (~params
-        (fn ~'[rate num-outs inputs ugen spec]
-          (when-not (do ~@exprs) (str ~default-message))))
-       (~params-with-message
-        (fn ~'[rate num-outs inputs ugen spec]
-          (when-not (do ~@exprs) (str ~message " -- " ~default-message)))))))
+        params-with-message (conj params message)
+        context-params '[rate num-outs inputs ugen spec]
+        all-params (into params context-params)]
+    (assert (empty? (set/intersection (set params) (set context-params))))
+    `(let [->default# (fn ~all-params ~default-message)]
+       (defn ~name
+         (~params
+           (fn ~context-params
+             (when-not (do ~@exprs)
+               (str (->default# ~@context-params)))))
+         (~params-with-message
+           (fn ~context-params
+             (when-not (do ~@exprs)
+               (str ~message " -- " (->default# ~@context-params)))))))))
 
 (defcheck same-rate-as-first-input []
   (str "Rate mismatch: "
@@ -77,15 +88,15 @@
   (= (:rate (first inputs)) rate))
 
 (defcheck first-input-ar []
-  (str "The first input must be audio rate. Found  " (with-out-str (pr (first inputs))) " with rate " (with-out-str (pr (:rate-name (first inputs)) ))
+  (str "The first input must be audio rate. Found  " (pr-str (first inputs)) " with rate " (pr-str (:rate-name (first inputs)) )
        (ar? (first inputs))))
 
 (defcheck all-inputs-ar []
-  (str "All inputs must be audio rate. Got " (vec (map :rate-name inputs)))
+  (str "All inputs must be audio rate. Got " (mapv :rate-name inputs))
   (every? ar? inputs))
 
 (defcheck first-n-inputs-ar [n]
-  (str "The first " n " inputs must be audio rate. Got " (vec (map :rate-name (take n inputs))))
+  (str "The first " n " inputs must be audio rate. Got " (mapv :rate-name (take n inputs)))
   (every? ar? (take n inputs)))
 
 (defcheck after-n-inputs-rest-ar [n]
@@ -97,7 +108,8 @@
   (every? ar? (drop 1 inputs)))
 
 (defcheck nth-input-ar [index]
-  (str "The input at index " index " should be audio rate - found " (nth inputs index) " with rate: "(with-out-str (pr (:rate-name (nth inputs index)))))
+  (str "The input at index " index " should be audio rate - found " (nth inputs index) " with rate: "
+       (pr-str (:rate-name (nth inputs index))))
   (ar? (nth inputs index)))
 
 (defcheck num-outs-greater-than [n]
@@ -113,17 +125,17 @@
      (= :ir (:rate-name val)))))
 
 (defcheck nth-input-buffer? [n]
-  (str "Input with index " n " must be a buffer. i.e. a buffer, local-buf or a number. Got:"  (with-out-str (pr (nth inputs n))))
+  (str "Input with index " n " must be a buffer. i.e. a buffer, local-buf or a number. Got:"  (pr-str (nth inputs n)))
   (let [val (nth inputs n)]
     (buffer-like? val)))
 
 (defcheck nth-input-buffer-pow2? [n]
   (str "Input with index " n " must be a buffer with size which is a power of 2 an id or a control-proxy.")
   (let [buf (nth inputs n)]
-    (or (or (and (buffer? buf)
-                 (power-of-two? (:size buf)))
-            (and (local-buffer? buf)
-                 (power-of-two? (first (:args buf)))))
+    (or (and (buffer? buf)
+             (math/power-of-two? (:size buf)))
+        (and (local-buffer? buf)
+             (math/power-of-two? (first (:args buf))))
         (number? buf)
         (control-proxy? buf))))
 
@@ -131,12 +143,12 @@
   (str "Input with index " n " must be a number which is either 0 or a power of 2.")
   (let [val (nth inputs n)]
     (or (zero? val)
-        (power-of-two? val))))
+        (math/power-of-two? val))))
 
 (defcheck nth-input-power-of-2? [n]
   (str "Input with index " n " must be a number which is a power of 2.")
   (let [val (nth inputs n)]
-    (power-of-two? val)))
+    (math/power-of-two? val)))
 
 (defcheck nth-input-stream? [n]
   (str "Input with index " n " must be an input stream i.e. a ugen at :kr or :ar")
