@@ -3,18 +3,17 @@
   This is at heart an OSC client library for the SuperCollider scsynth
   DSP engine."
   {:author "Jeff Rose"}
-  (:require
-   [subtide.config.log :as log]
-   [subtide.helpers.lib :as lib]
-   [subtide.libs.deps :as deps]
-   [subtide.libs.event :as event]
-   [subtide.osc :as osc]
-   [subtide.osc.dyn-vars :as osc-dyn-vars]
-   [subtide.sc.dyn-vars :as dyn-vars]
-   [subtide.sc.machinery.server.comms :as comms]
-   [subtide.sc.machinery.server.connection :as connection])
-  (:import
-   (java.util.concurrent TimeoutException)))
+  (:require [clojure.string :as str]
+            [subtide.config.log :as log]
+            [subtide.helpers.lib :as lib]
+            [subtide.libs.deps :as deps]
+            [subtide.libs.event :as event]
+            [subtide.osc :as osc]
+            [subtide.osc.dyn-vars :as osc-dyn-vars]
+            [subtide.sc.dyn-vars :as dyn-vars]
+            [subtide.sc.machinery.server.comms :as comms]
+            [subtide.sc.machinery.server.connection :as connection])
+  (:import (java.util.concurrent TimeoutException)))
 
 (defn connection-info
   "Returns connection information regarding the currently connected
@@ -129,7 +128,7 @@
   (snd \"/foo\" 1 2.0 \"eggs\")"
   [path & args]
   (when (server-disconnected?)
-    (throw (Exception. "Unable to send messages to a disconnected server. Please boot or connect to a server.")))
+    (throw (ex-info "Unable to send messages to a disconnected server. Please boot or connect to a server." {})))
   (apply comms/server-snd path args))
 
 (defn recv
@@ -145,7 +144,7 @@
   ([path] (recv path nil))
   ([path matcher-fn]
    (when-not (server-connected?)
-     (throw (Exception. "Unable to receive messages from a disconnected server. Please boot or connect to a server.")))
+     (throw (ex-info "Unable to receive messages from a disconnected server. Please boot or connect to a server." {})))
    (comms/server-recv path matcher-fn)))
 
 (defn connect-server
@@ -159,8 +158,6 @@
    (connection/connect host port)
    (deps/wait-until-deps-satisfied :server-ready)
    :happy-hacking))
-
-(def ^:deprecated connect-external-server connect-server)
 
 (defn boot-external-server
   "Boot an external server by starting up an external process and connecting to
@@ -292,8 +289,8 @@
  [:subtide :osc-msg-received]
  (fn [{{path :path args :args} :msg}]
    (let [poll-path "/subtide/internal/poll/"]
-     (when (.startsWith ^java.lang.String path poll-path)
-       (println "-->" (.substring ^java.lang.String path (count poll-path)) (nth args 2)))))
+     (when (str/starts-with? path poll-path)
+       (println "-->" (subs path (count poll-path)) (nth args 2)))))
  ::handle-incoming-poll-messages)
 
 (def connect-jack-ports #'connection/connect-jack-ports)
