@@ -87,11 +87,5 @@
     (is (= a b))))
 
 (deftest read-write-test []
-  (is TOM-DEF {:pwd (pr-str (System/getProperty "user.dir"))
-               :classpath (pr-str (System/getProperty "java.class.path"))
-               :file (.exists (io/file "test-resources/subtide/data/tom.scsyndef"))
-               :shell (-> ((requiring-resolve 'clojure.java.shell/sh) "ls" "test-resources/subtide/data")
-                          (update :out pr-str)
-                          (update :err pr-str))})
   (rw-file-test TOM-DEF)
   (rw-file-test KICK-DEF))

@@ -2,6 +2,7 @@
 *.swp
 *.swo
 *.class
+# FIXME allow in subtide/synth/test-resources
 *.scsyndef
 session
 checkouts
