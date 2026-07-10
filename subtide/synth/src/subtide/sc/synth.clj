@@ -30,7 +30,7 @@
 
 (defn- valid-control-proxy-rate?
   [rate]
-  (some #{rate} CONTROL-PROXY-RATES))
+  (some #(= rate %) CONTROL-PROXY-RATES))
 
 ;; ### Synth
 ;;
@@ -40,9 +40,10 @@
 ;; their own local controls that are set via commands to the server.
 
 (defn- ugen-index [ugens ugen]
-  (ffirst (filter (fn [[i v]]
-                    (= (:id v) (:id ugen)))
-                  (indexed ugens))))
+  (some (fn [[i v]]
+          (when (= (:id v) (:id ugen))
+            i))
+        (indexed ugens)))
 
 ; Gets the group number (source) and param index within the group (index)
 ; from the params that are grouped by rate like this:
@@ -51,15 +52,18 @@
 ; [{:name :adfs :default 20.23 :rate  2} {:name :bar :default 8.6 :rate  2}]]
 (defn- param-input-spec [grouped-params param-proxy]
   (let [param-name (:name param-proxy)
-        ctl-filter (fn [[idx ctl]] (= param-name (:name ctl)))
-        [[src group] foo] (take 1 (filter
-                              (fn [[src grp]]
-                                (not (empty?
-                                       (filter ctl-filter (indexed grp)))))
-                              (indexed grouped-params)))
-        [[idx param] bar] (take 1 (filter ctl-filter (indexed group)))]
+        ctl-filter (fn [[idx ctl :as input]]
+                     (when (= param-name (:name ctl))
+                       input))
+        [src group] (some (fn [[_src grp :as input]]
+                            (when (some ctl-filter (indexed grp))
+                              input))
+                          (indexed grouped-params))
+        [idx param] (some ctl-filter (indexed group))]
     (when (or (nil? src) (nil? idx))
-      (throw (ex-info (str "Invalid parameter name: " param-name ". Please make sure you have named all parameters in the param map in order to use them inside the synth definition.")
+      (throw (ex-info (str "Invalid parameter name: " param-name
+                           ". Please make sure you have named all parameters in the"
+                           " param map in order to use them inside the synth definition.")
                       {:param-name param-name})))
     {:src src :index idx}))
 
