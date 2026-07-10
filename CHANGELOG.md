@@ -8,3 +8,4 @@
 - Add `FREE-RESUME-AFTER` var for `freeSelfResumeNext` action
 - Fix double expansion in `defcheck`
 - Remove deprecated vars `connect-external-server`, `boot-internal-server`
+- Remove `freesound-searchm`

@@ -5,7 +5,8 @@
   (:require
    [clojure.data.json :as json]
    [clojure.java.browse]
-   [clojure.pprint]
+   [clojure.java.io :as io]
+   [clojure.pprint :as pp]
    [subtide.samples.freesound.search-results :refer :all]
    [subtide.samples.freesound.url :refer :all]
    [subtide.sc.node :refer :all]
@@ -37,7 +38,7 @@
 
 (derive FreesoundSample :subtide.sc.sample/playable-sample)
 
-(defmethod clojure.pprint/simple-dispatch FreesoundSample [b]
+(defmethod pp/simple-dispatch FreesoundSample [b]
   (println
    (format "#<freesound[%s]: %d %s %fs %s %d>"
            (name @(:status b))
@@ -189,13 +190,13 @@
 (defn with-authorization-header* [do-request]
   (binding [*authorization-header*
             (fn []
-              (when (not @*access-token*)
+              (when-not @*access-token*
                 (authorization-instructions))
               (str "Bearer " @*access-token*))]
     (try
       (do-request)
       (catch clojure.lang.ExceptionInfo e
-        (if (not= 401 (:response-code (ex-data e)))
+        (if-not (= 401 (:response-code (ex-data e)))
           (throw e)
           (if (config/store-get :freesound-refresh-token)
             (do (println "Freesound access token has expired, refreshing.")
@@ -229,11 +230,10 @@
    ends with extension, in case it's not provided in the
    `:name` attribute."
   [info]
-  (let [filename (str (or (:name info) (:id info)))
-        filetype (str (:type info))]
+  (let [filename (str (or (:name info) (:id info)))]
     (if (file-extension filename)
       filename
-      (str filename "." filetype))))
+      (str filename "." (:type info)))))
 
 (defn freesound-info
   "Returns a map containing information pertaining to a particular freesound.
@@ -324,7 +324,7 @@
   [id]
   (into
    {}
-   (for [sample-file (file-seq (java.io.File. ^String (freesound-pack-dir id)))
+   (for [sample-file (file-seq (io/file (freesound-pack-dir id)))
          :let [[_ id user sample-name] (re-find #"/(\d+)__([^/\.]+)__([^\.]+).wav" (str sample-file))]
          :when sample-name]
      [(keyword sample-name)
@@ -407,16 +407,6 @@
   {:arglists '([ks* q* & params])}
   [& args]
   (freesound-search* (normalize-search-args args)))
-
-(defmacro freesound-searchm
-  "Search freesound.org and expand the results at macro expansion time."
-  {:arglists '([ks* q* & params])}
-  [& args]
-  ;(println "Compiling freesound search results...")
-  (let [params (normalize-search-args args)
-        search (freesound-search* params)]
-    (dorun search)
-    `[~@search]))
 
 (defn freesound-search-paths
   "Search and download. Downloads a caches the sound file matching your search
