@@ -26,7 +26,7 @@
               ;; Next we transpose the frequencies over several octaves
               ;; and create a band limited impulse generator (blip) for
               ;; each of the freq gens. The blip allows us to configure the number
-              ;; of subtides/harmonics used, which is constantly modulated by a
+              ;; of overtones/harmonics used, which is constantly modulated by a
               ;; noise generator between 1 and 7 harmonics...
               tones (map #(blip (* % %2) (mul-add:kr (lf-noise1:kr 1/4) 3 4)) f [1 4 8])]
           ;; finally, all tones are summed into a single signal

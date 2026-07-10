@@ -1,5 +1,5 @@
 (ns
-  ^{:doc "Brief intro to Incanter and concept of subtides/harmonics.
+  ^{:doc "Brief intro to Incanter and concept of overtones/harmonics.
           Displays some graphs of how harmonics are used to
           generate different wave forms."
     :author "Karsten Schmidt"}
@@ -26,12 +26,12 @@
       x1 x2 title)))
 
 (defn saw-wave
-  "Sawtooth uses subtides in each octave with exponentially
+  "Sawtooth uses overtones in each octave with exponentially
   decreasing impact."
   [i x] (let [i (inc i)] (* (Math/sin (* i x)) (/ 1.0 i))))
 
 (defn sq-wave
-  "Sawtooth uses subtides in only every 2nd octave with
+  "Sawtooth uses overtones in only every 2nd octave with
   exponentially decreasing impact."
   [i x] (let [i (inc (* i 2))] (* (Math/sin (* i x)) (/ 1.0 i))))
 
@@ -46,5 +46,5 @@
 (plot-harmonics sq-wave 20 "square")
 (plot-harmonics comb-wave 20 "comb")
 
-;; this graph shows the amplitude of subtides in each octave
+;; this graph shows the amplitude of overtones in each octave
 (simple-plot #(/ 1.0 %) 1 10 "harmonic falloff")

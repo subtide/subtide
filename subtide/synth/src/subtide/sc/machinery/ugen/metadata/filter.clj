@@ -379,7 +379,7 @@
           the cutoff point and successfully dampens the frequencies below
           the cutoff point. This effectively removes the fundamental
           frequency of the sound, leaving only the fizz harmonic
-          subtides. However, in addition to this behaviour, the
+          overtones. However, in addition to this behaviour, the
           resonant high pass filter also emphasises/resonates the
           frequencies around the cutoff point. The amount of emphasis
           is controlled by the rq param with a lower rq resulting in
@@ -429,7 +429,7 @@
           cutoff point and successfully dampens the frequencies below the
           cutoff point. This effectively removes the fundamental
           frequency of the sound, leaving only the fizz harmonic
-          subtides.
+          overtones.
 
           High pass filters are rarely used in the creation of
           instruments and are predominantly used to create effervexcent

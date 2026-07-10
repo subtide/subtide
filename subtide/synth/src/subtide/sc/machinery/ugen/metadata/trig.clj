@@ -386,7 +386,7 @@
           found. Some vowels are still problematic, for instance a wide
           open mouth sound somewhere between a low pitched short 'a'
           sound as in 'sat', and long 'i' sound as in 'fire', contains
-          enough subtide energy to confuse the algorithm. None of these
+          enough overtone energy to confuse the algorithm. None of these
           settings are time variable."
     :args [{:name "in"
             :doc "Input signal"}
@@ -428,7 +428,7 @@
            {:name "peak-threshold",
             :doc "Finds the next peak that is above peak-threshold times
                   the amplitude of the peak at lag zero. A value of 0.5
-                  does a pretty good job of eliminating subtides."
+                  does a pretty good job of eliminating overtones."
             :default 0.5}
 
            {:name "down-sample",
