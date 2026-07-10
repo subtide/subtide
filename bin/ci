@@ -10,3 +10,8 @@ popd
 #pushd subtide/schedule
 #  ./bin/ci
 #pop
+
+# TODO
+#pushd subtide/osc
+#  ./bin/ci
+#pop

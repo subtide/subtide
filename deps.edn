@@ -1,4 +1,5 @@
-{:deps {org.subtide/subtide.synth {:local/root "subtide/synth"}
+{:deps {org.subtide/subtide.osc {:local/root "subtide/osc"}
+        org.subtide/subtide.synth {:local/root "subtide/synth"}
         org.subtide/subtide.schedule {:local/root "subtide/schedule"}}
  :aliases {:test {:extra-paths ["subtide/synth/test" "subtide/synth/test-resources"]
                   :extra-deps {nubank/matcher-combinators {:mvn/version "3.9.1"}
