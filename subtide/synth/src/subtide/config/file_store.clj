@@ -2,9 +2,8 @@
   "Provides a simple key/value store which will automatically persist to a file on
   disk. The file is serialized clojure code which can be easily edited as text."
   {:author "Jeff Rose, Kevin Neaton"}
-  (:use [clojure.pprint])
-  (:require [subtide.helpers.file :as file-helpers])
-  (:import [java.io FileOutputStream FileInputStream]))
+  (:require [clojure.pprint :as pp]
+            [subtide.helpers.file :as file-helpers]))
 
 ;; This should be temporary...
 (def storage (constantly :file))
@@ -19,8 +18,9 @@
 (defmethod write-file-store :file
   [path data]
   (locking F-LOCK
-    (binding [*print-length* nil]
-      (spit path (with-out-str (pprint data))))))
+    (binding [*print-length* nil
+              *print-level* nil]
+      (spit path (with-out-str (pp/pprint data))))))
 
 (defmethod read-file-store :file
   [path]
