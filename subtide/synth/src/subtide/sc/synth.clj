@@ -429,7 +429,7 @@
   (let [visit (fn visit [[ret visited path :as acc] ug]
                 (cond
                  (visited ug) acc
-                 (path ug)    (throw (Exception. "ugen graph contains cycle"))
+                 (path ug)    (throw (ex-info "ugen graph contains cycle" {:path path :ug ug}))
                  :else
                  (let [[ret visited path :as acc]
                        (reduce visit [ret visited (conj path ug)] (ugen-children ug))]
@@ -590,11 +590,11 @@
   ([s-name s-form {:keys [compile-time?]
                    :or {compile-time? true}}]
    (let [[s-name s-form] (name-with-attributes s-name s-form)
-         _               (when (not (symbol? s-name))
-                           (throw (IllegalArgumentException. (str "You need to specify a name for your synth using a symbol"))))
+         _               (when-not (symbol? s-name)
+                           (throw (ex-info "You need to specify a name for your synth using a symbol" {})))
          params          (first s-form)
-         ugen-form       (concat '(do) (next s-form))
-         param-names     (list (vec (map #(symbol (:name %)) (parse-params params))))
+         ugen-form       (cons `do (next s-form))
+         param-names     (list (mapv #(symbol (:name %)) (parse-params params)))
          md              (assoc (meta s-name)
                                 :name s-name
                                 :type ::synth
@@ -704,11 +704,9 @@
   (defsynth-load my-synth
     (io/resource \"event.scsyndef\"))"
   [def-name data]
-  `(let [smap# (synth-load ~data)]
-     (def ~def-name
-       smap#)
-     (alter-meta! (var ~def-name) merge (meta ~def-name))
-     (var ~def-name)))
+  `(do (def ~def-name (synth-load ~data))
+       (alter-meta! (var ~def-name) merge (meta ~def-name))
+       (var ~def-name)))
 
 (defn synth?
   "Returns true if s is a synth, false otherwise."
@@ -793,11 +791,11 @@
 
 (defmacro with-no-ugen-checks [& body]
   `(binding [subtide.sc.machinery.ugen.specs/*checking* false]
-     ~@body))
+     (do ~@body)))
 
 (defmacro with-ugen-debugging [& body]
   `(binding [subtide.sc.machinery.ugen.specs/*debugging* true]
-     ~@body))
+     (do ~@body)))
 
 (defn synth-args
   "Returns a seq of the synth's args as keywords"

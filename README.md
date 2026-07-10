@@ -1,6 +1,6 @@
 # Subtide
 
-A fork of the [Overtone](https://github.com/overton) ecosystem.
+A fork of the [Overtone](https://github.com/overtone) ecosystem.
 
 ## Usage
 
@@ -67,3 +67,7 @@ nil
 user=> (demo (sin-osc))
 #<synth-node[loading]: user/audition-synth 32>
 ```
+
+## Tutorial
+
+Subtide

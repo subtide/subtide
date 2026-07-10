@@ -105,7 +105,7 @@
   revert back to original (Clojure) semantics if not passed with ugen args."
   [& body]
   (let [bindings (into [] (mapcat (fn [[orig overload]]
-                                    [orig (symbol ugen-collide-ns-str (str overload))]))
+                                    [orig (symbol fn-gen/ugen-collide-ns-str (str overload))]))
                        @fn-gen/overloaded-ugens*)]
     `(let ~bindings
        ~@body)))

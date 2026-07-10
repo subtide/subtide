@@ -2,7 +2,10 @@
     ^{:doc "Useful string manipulation fns"
       :author "Sam Aaron"}
   subtide.helpers.string
-  (:use [subtide.helpers.hash :only [md5]]))
+  (:require [clojure.string :as str]
+            [subtide.helpers.hash :as hash]))
+
+(set! *warn-on-reflection* true)
 
 (defn chop-last
   "Removes the last char in str. Returns empty string unmodified"
@@ -39,16 +42,17 @@
 (defn str->regex
   "Converts term to regex. If term is already a regex, leaves it unchanged."
   [term]
-  (if (= java.util.regex.Pattern (type term))
+  (if (instance? java.util.regex.Pattern term)
     term
     (re-pattern (str term))))
 
 (defn capitalize
   "Make the first char of the text uppercase and leave the rest unmodified"
   [text]
-  (let [first-char (.toUpperCase (str (first text)))
-        rest-chars (apply str (rest text))]
-    (str first-char rest-chars)))
+  (if (empty? text)
+    text
+    (str (str/upper-case (subs text 0 1))
+         (subs text 1))))
 
 (defn split-on-char
   "Splits a string on a char or single character string.
@@ -67,15 +71,16 @@
   [max-size prefix postfix]
   (let [prefix  (str prefix)
         postfix (str postfix)
-        hash    (subs (str (md5 prefix)) 0 3)
+        hash    (subs (str (hash/md5 prefix)) 0 3)
         cnt     (+ (count prefix) (count postfix))]
     (cond
       (< cnt max-size) (str prefix postfix)
 
       (> (+ (count hash) (count postfix)) max-size)
-      (throw (Exception.
+      (throw (ex-info
               (str "Cannot shorten string. The max-size you supplied to hash-shorten is too small. Try something larger than "
-                   (+ (count hash) (count postfix)))))
+                   (+ (count hash) (count postfix)))
+              {:max-size max-size}))
 
       :else (let [num-allowed-chars (- max-size (count hash) (count postfix))
                   allowed-s         (subs prefix 0 num-allowed-chars)]
@@ -84,9 +89,10 @@
 (defn numeric?
   "Determines if string is numeric."
   [s]
-  (if-let [s (seq s)]
+  (if-some [s (seq s)]
     (let [s (if (= (first s) \-) (next s) s)
-          s (drop-while #(Character/isDigit ^java.lang.Character %) s)
+          s (drop-while #(Character/isDigit ^Character %) s)
           s (if (= (first s) \.) (next s) s)
-          s (drop-while #(Character/isDigit ^java.lang.Character %) s)]
-      (empty? s))))
+          s (drop-while #(Character/isDigit ^Character %) s)]
+      (empty? s))
+    false))
