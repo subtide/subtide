@@ -1,7 +1,6 @@
-(ns
-  ^{:doc "UGen argument validation functions."
-     :author "Jeff Rose & Christophe McKeon"}
-  subtide.sc.machinery.ugen.check
+(ns subtide.sc.machinery.ugen.check
+  {:doc "UGen argument validation functions."
+   :author "Jeff Rose & Christophe McKeon"}
   (:require [clojure.set :as set]
             [subtide.helpers.lib :as lib]
             [subtide.helpers.math :as math])
@@ -156,7 +155,7 @@
     (input-stream? val)))
 
 (defcheck arg-is-sequential? [k]
-  (str "Argument with key " k " must be a sequence.")
+  (str "Argument with key " k " must be sequential.")
   (let [merged-args (:arg-map ugen)]
     (sequential? (get merged-args k))))
 
