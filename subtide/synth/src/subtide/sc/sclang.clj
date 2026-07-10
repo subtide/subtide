@@ -1,6 +1,6 @@
 (ns subtide.sc.sclang
   (:require
-   [babashka.process :as proc]
+   [babashka.process :as proc] ;;TODO migrate to clojure.java.process
    [clojure.edn :as edn]
    [clojure.java.io :as io]
    [clojure.string :as str]

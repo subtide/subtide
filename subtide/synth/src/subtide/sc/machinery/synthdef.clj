@@ -14,10 +14,10 @@
         [subtide.libs event deps]
         [subtide.sc server]
         [subtide.sc.machinery.server comms]
-        [subtide.sc.machinery.ugen common specs]
-        [subtide.helpers.file :only [resolve-tilde-path]]
-        [subtide.helpers.system :only [get-os]])
-  (:require [subtide.config.log :as log]))
+        [subtide.sc.machinery.ugen common specs])
+  (:require [subtide.config.log :as log]
+            [subtide.helpers.file :refer [resolve-tilde-path]]
+            [subtide.helpers.system :refer [get-os]]))
 
 ;; param-name is :
 ;;   pstring - the name of the parameter
@@ -253,11 +253,13 @@
   [synthdef-spec data]
   (first (:synths
           (cond
-            (keyword? data) (spec-read-url synthdef-spec (java.net.URL. (str "file:" (supercollider-synthdef-path (to-str data)))) )
-            (string? data) (spec-read-url synthdef-spec (java.net.URL. (str "file:" (resolve-tilde-path data))))
-            (instance? java.net.URL data) (spec-read-url synthdef-spec data)
+            (keyword? data) (spec-read-url synthdef-spec (URL. (str "file:" (supercollider-synthdef-path (to-str data)))) )
+            (string? data) (spec-read-url synthdef-spec (URL. (str "file:" (resolve-tilde-path data))))
+            (instance? URL data) (spec-read-url synthdef-spec data)
             (byte-array? data) (spec-read-bytes synthdef-spec data)
-            :default (throw (IllegalArgumentException. (str "synthdef-read expects either a string, a URL, or a byte-array argument.")))))))
+            :else (throw (ex-info "synthdef-read expects either a string, a URL, or a byte-array argument."
+                                  {:type (class data)
+                                   :data data}))))))
 
 (defn synthdef-read
   "Reads synthdef data from either a file specified using a string path

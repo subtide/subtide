@@ -87,5 +87,7 @@
     (is (= a b))))
 
 (deftest read-write-test []
+  (is TOM-DEF)
   (rw-file-test TOM-DEF)
+  (is KICK-DEF)
   (rw-file-test KICK-DEF))
