@@ -1,10 +1,11 @@
-(ns
-    ^{:doc "CGens, or Composite Generators are composite UGens and/or other CGens. These are purely an Subtide abstraction whereas UGens have matching counterparts on SuperCollider Server. CGens allow you to build and share re-usable sub-synth components which act like ugens."
-      :author "Sam Aaron"}
-    subtide.sc.defcgen
-
-  (:use [clojure.walk :as walk]
-        [subtide.helpers lib]
+(ns subtide.sc.defcgen
+  "CGens, or Composite Generators are composite UGens and/or other CGens.
+  These are purely an Subtide abstraction whereas UGens have matching counterparts
+  on SuperCollider Server. CGens allow you to build and share re-usable sub-synth components
+  which act like ugens."
+  {:author "Sam Aaron"}
+  (:require [clojure.walk :as walk])
+  (:use [subtide.helpers lib]
         [subtide.sc ugens]
         [subtide.sc.machinery.ugen defaults fn-gen doc])
   (:import [java.io Writer]))
