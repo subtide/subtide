@@ -72,11 +72,11 @@
          (~params
            (fn ~context-params
              (when-not (do ~@exprs)
-               (str (->default# ~@context-params)))))
+               (str (->default# ~@all-params)))))
          (~params-with-message
            (fn ~context-params
              (when-not (do ~@exprs)
-               (str ~message " -- " (->default# ~@context-params)))))))))
+               (str ~message " -- " (->default# ~@all-params)))))))))
 
 (defcheck same-rate-as-first-input []
   (str "Rate mismatch: "
