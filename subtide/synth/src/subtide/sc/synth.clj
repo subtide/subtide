@@ -120,8 +120,8 @@
                      (:args ugen)))
         ugen (assoc ugen :inputs inputs)]
     (when-not (every? (fn [{:keys [src index]}]
-                        (and (not (nil? src))
-                             (not (nil? index))))
+                        (and (some? src)
+                             (some? index)))
                       (:inputs ugen))
       (throw (ex-info
               (format "Cannot connect ugen arguments for %s ugen with args: %s" (:name ugen) (str (seq (:args ugen))))
@@ -352,8 +352,9 @@
 (defn- control-proxies
   "Returns a list of param name symbols and control proxies"
   [params]
-  (mapcat (fn [param] [(symbol (:name param))
-                      `(control-proxy ~(:name param) ~(:default param) ~(:rate param))])
+  (mapcat (fn [param]
+            [(symbol (:name param))
+             `(control-proxy ~(:name param) ~(:default param) ~(:rate param))])
           params))
 
 (defn- gen-synth-name
