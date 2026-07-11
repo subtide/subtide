@@ -1,9 +1,9 @@
 (ns subtide.sc.dyn-vars)
 
-(defonce ^{:dynamic true :private true} *inactive-node-modification-error* :exception)
-(defonce ^{:dynamic true :private true} *inactive-buffer-modification-error* :exception)
-(defonce ^{:dynamic true :private true} *add-current-namespace-to-synth-name* true)
-(defonce ^{:dynamic true :private true} *block-node-until-ready?* true)
+(defonce ^:dynamic ^:private *inactive-node-modification-error* :exception)
+(defonce ^:dynamic ^:private *inactive-buffer-modification-error* :exception)
+(defonce ^:dynamic ^:private *add-current-namespace-to-synth-name* true)
+(defonce ^:dynamic ^:private *block-node-until-ready?* true)
 
 (defn inactive-node-modification-error
   "Returns the current value for the dynamic var
@@ -28,14 +28,14 @@
    block. Options are: :exception, :warning and :silent"
   [error-type & body]
   `(binding [*inactive-node-modification-error* ~error-type]
-     ~@body))
+     (do ~@body)))
 
 (defmacro with-inactive-buffer-modification-error
   "Specify the inactive buffer modification error for the specified
    block. Options are: :exception, :warning and :silent"
   [error-type & body]
   `(binding [*inactive-buffer-modification-error* ~error-type]
-     ~@body))
+     (do ~@body)))
 
 (defmacro with-inactive-modification-error
   "Specify the inactive modification error for both nodes and buffers
@@ -44,7 +44,7 @@
   [error-type & body]
   `(binding [*inactive-buffer-modification-error* ~error-type
              *inactive-node-modification-error* ~error-type]
-     ~@body))
+     (do ~@body)))
 
 (defmacro without-node-blocking
   "Stops the current thread from being blocked if you send a
@@ -53,7 +53,7 @@
    macro being ignored by the server."
   [& body]
   `(binding [*block-node-until-ready?* false]
-     ~@body))
+     (do ~@body)))
 
 (defn add-current-namespace-to-synth-name?
   "Returns the current value for the dynamic var
@@ -66,4 +66,4 @@
   within 31 chars."
   [& body]
   `(binding [*add-current-namespace-to-synth-name* false]
-     ~@body))
+     (do ~@body)))

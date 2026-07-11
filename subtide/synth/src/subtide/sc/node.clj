@@ -15,8 +15,7 @@
 ;; The root group is implicitly allocated
 (defonce _root-group_ (next-id :node))
 
-(defonce ^{:private true} __PROTOCOLS__
-
+(defonce ^:private __PROTOCOLS__
   (do
     (defprotocol to-sc-id* (to-sc-id [v]))
 
@@ -65,12 +64,12 @@
       (group-free [group]
         "Destroys this group and any containing synths or subgroups."))))
 
-(extend-type java.lang.Long to-sc-id* (to-sc-id [v] v))
-(extend-type java.lang.Integer to-sc-id* (to-sc-id [v] v))
-(extend-type java.lang.Float to-sc-id* (to-sc-id [v] v))
+(extend-type Long to-sc-id* (to-sc-id [v] v))
+(extend-type Integer to-sc-id* (to-sc-id [v] v))
+(extend-type Float to-sc-id* (to-sc-id [v] v))
 
 
-(defonce ^{:private true} __RECORDS__
+(defonce ^:private __RECORDS__
   (do
    (defrecord SynthNode [synth id target position args sdef status loaded?]
      to-sc-id*
@@ -186,14 +185,13 @@
   (node \"foo\")
   (node \"foo\" {:pitch 60})
   (node \"foo\" {:pitch 60} {:target 0})
-  (node \"foo\" {:pitch 60} {:position :tail :target 2})
-  "
+  (node \"foo\" {:pitch 60} {:position :tail :target 2})"
   ([synth-name] (node synth-name {} {:position :tail, :target 0}))
   ([synth-name arg-map] (node synth-name arg-map {:position :tail, :target 0}))
   ([synth-name arg-map location] (node synth-name arg-map location nil))
   ([synth-name arg-map location sdef]
-     (if (not (server-connected?))
-       (throw (Exception. "Not connected to synthesis engine.  Please boot or connect server.")))
+     (when-not (server-connected?)
+       (throw (ex-info "Not connected to synthesis engine.  Please boot or connect server." {})))
      (let [id       (next-id :node)
            position (get location :position :tail)
            pos-id   (get NODE-POSITION position 1)
@@ -404,10 +402,8 @@
 ;; will allow parallel audio processing for nodes within it when run on the
 ;; Supernova synthesis server.
 
-
-
 (defn- synth-group? [obj]
-  (= subtide.sc.node.SynthGroup (type obj)))
+  (instance? subtide.sc.node.SynthGroup obj))
 
 (def ^:dynamic par-group-switch false)
 
@@ -625,11 +621,10 @@
    behaviour can be disabled with the macro without-node-blocking"
   [node]
   (when (block-node-until-ready?)
-    (deref! (:loaded? node) (str
-                             "blocking until the following node has completed loading: "
-                             (with-out-str (pr node))))))
+    (deref! (:loaded? node)
+            (str "blocking until the following node has completed loading: " (pr-str node)))))
 
-(extend java.lang.Long
+(extend Long
   ISynthNode
   {:node-free  node-free*
    :node-pause node-pause*
@@ -642,7 +637,7 @@
    :node-map-controls      node-map-controls*
    :node-map-n-controls    node-map-n-controls*})
 
-(extend java.lang.Integer
+(extend Integer
   ISynthNode
   {:node-free  node-free*
    :node-pause node-pause*
@@ -720,15 +715,15 @@
   protocols/IKillable
   {:kill* node-free*})
 
-(extend java.lang.Long
+(extend Long
   protocols/IKillable
   {:kill* node-free*})
 
-(extend java.lang.Integer
+(extend Integer
   protocols/IKillable
   {:kill* node-free*})
 
-(extend java.lang.Float
+(extend Float
   protocols/IKillable
   {:kill* node-free*})
 
@@ -835,7 +830,7 @@
   protocols/IKillable
   {:kill* group-deep-clear*})
 
-(extend java.lang.Long
+(extend Long
   ISynthGroup
   {:group-prepend-node group-prepend-node*
    :group-append-node  group-append-node*
@@ -874,13 +869,11 @@
   ([re-or-str]
    (node-tree-matching-synth-ids re-or-str (:root-group @foundation-groups*)))
   ([re-or-str root]
-   (let [matcher-fn (if (string? re-or-str)
-                      =
-                      re-matches)]
-     (map :id
-          (filter #(and (:name %)
-                        (matcher-fn re-or-str (:name %)))
-                  (node-tree-seq root))))))
+   (let [matcher-fn (if (string? re-or-str) = re-matches)]
+     (keep #(when (and (:name %)
+                       (matcher-fn re-or-str (:name %)))
+              (:id %))
+           (node-tree-seq root)))))
 
 (defn pp-node-tree
   "Pretty print the node tree to *out*"

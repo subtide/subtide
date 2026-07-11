@@ -1,15 +1,14 @@
-(ns
-    ^{:doc "Code to generate the ugen fns"
-      :author "Jeff Rose, Christophe McKeon and Sam Aaron"}
-  subtide.sc.machinery.ugen.fn-gen
+(ns subtide.sc.machinery.ugen.fn-gen
+  "Code to generate the ugen fns"
+  {:author "Jeff Rose, Christophe McKeon and Sam Aaron"}
   (:use [subtide.helpers lib]
         [subtide.libs counters]
         [subtide.helpers seq]
         [subtide.sc bindings]
-        [subtide.sc.node :only [idify]]
         [subtide.sc.machinery.ugen sc-ugen defaults specs special-ops intern-ns]
         [subtide.sc.machinery.ugen.metadata unaryopugen binaryopugen])
-  (:require [subtide.sc.machinery.ugen.doc :as doc]))
+  (:require [subtide.sc.machinery.ugen.doc :as doc]
+            [subtide.sc.node :as node]))
 
 
 ;;Create a ns to store all ugens that collide with standard ugen fns
@@ -148,7 +147,7 @@
   can't be converted to an sc id)"
   [f]
   (fn [& args]
-    (apply f (idify args))))
+    (apply f (node/idify args))))
 
 (defn unwrap-map-arg
   "Returns a fn which checks to see if its args is a list containing a map,
