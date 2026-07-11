@@ -117,7 +117,7 @@
 
 (defn canonical-path
   "Returns a string representing the canonical version of this path"
-  [path]
+  ^String [path]
   (let [path (resolve-tilde-path path)
         f    (file path)]
     (.getCanonicalPath f)))

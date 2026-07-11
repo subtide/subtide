@@ -1,28 +1,27 @@
 (ns subtide.helpers.zip
   "Useful zip manipulation fns"
   {:author "Sam Aaron"}
-  (:require
-   [clojure.java.io :as io]
-   [clojure.java.io :refer [file]]
-   [subtide.helpers.file :refer :all])
-  (:import
-   (java.io StringWriter FileInputStream FileOutputStream)
-   (java.util.zip ZipFile ZipEntry ZipInputStream)))
+  (:require [clojure.java.io :as io]
+            [subtide.helpers.file :refer :all])
+  (:import (java.io StringWriter FileInputStream FileOutputStream)
+           (java.util.zip ZipFile ZipEntry)))
+
+(set! *warn-on-reflection* true)
 
 (defn zip-file
   "Returns an open java.util.zip.ZipFile object representing the zip file
   pointed to by path."
-  [path]
+  ^ZipFile [path]
   (let [path (resolve-tilde-path path)
-        file (file path)]
+        file (io/file path)]
     (ZipFile. file)))
 
 (defn zip-entry
   "Returns a java.util.zip.ZipEntry object representing the entry with name
   entry-name within the zipfile pointed to by path. Ensures zipfile is closed.
   Returns nil if entry-name not found within zipfile."
-  [path entry-name]
-  (let [^ZipFile zip (zip-file path)
+  ^ZipEntry [path entry-name]
+  (let [zip (zip-file path)
         entry (.getEntry zip entry-name)]
     (.close zip)
     entry))
@@ -31,7 +30,7 @@
   "Returns a seq of java.util.zip.ZipEntry objects representing the contents of
    the zip file at the specified path. Ensures zipfile is closed"
   [path]
-  (let [^ZipFile zip (zip-file path)
+  (let [zip (zip-file path)
         entries (.entries zip)
         entries (doall (enumeration-seq entries))]
     (.close zip)
@@ -42,8 +41,8 @@
   zipfile pointed to by path. Ensures zipfile is closed. Returns nil if
   entry-name not found within zipfile."
   [path entry-name]
-  (let [sw    (StringWriter.)
-        ^ZipFile zip (zip-file path)
+  (let [sw (StringWriter.)
+        zip (zip-file path)
         entry (zip-entry path entry-name)]
     (if (and zip entry)
       (do
@@ -64,24 +63,24 @@
         dest-path (resolve-tilde-path dest-path)
         dest-path (canonical-path dest-path)]
     (when-not (dir-exists? dest-path)
-      (throw (Exception. (str "Destination directory does not exist: " dest-path))))
+      (throw (ex-info (str "Destination directory does not exist: " dest-path) {})))
     (when-not (file-exists? zip-path)
-      (throw (Exception. (str "Source zip file does not exist: " zip-path))))
+      (throw (ex-info (str "Source zip file does not exist: " zip-path) {})))
 
     (let [^ZipFile zip (zip-file zip-path)
           entries (.entries zip)
           entries (doall (enumeration-seq entries))]
-      (dorun
-       (map
-        (fn [^java.util.zip.ZipEntry entry]
+      (run!
+        (fn [^ZipEntry entry]
           (let [name           (.getName entry)
-                full-dest-path (mk-path dest-path name)
-                ^java.lang.String full-dest-path (canonical-path full-dest-path)]
+                full-dest-path (-> (mk-path dest-path name)
+                                   canonical-path)]
             (when-not (subdir? full-dest-path dest-path)
-              (throw (Exception. "Security warning - unzip was requested to create a path which is not within original dest-path. Aborting operation.")))
+              (throw (ex-info "Security warning - unzip was requested to create a path which is not within original dest-path. Aborting operation."
+                              {})))
             (if (.isDirectory entry)
               (mkdir-p! full-dest-path)
               (let [is (.getInputStream zip entry)
                     fs (FileOutputStream. full-dest-path)]
                 (io/copy is fs)))))
-        entries)))))
+        entries))))
