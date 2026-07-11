@@ -1,7 +1,7 @@
 (ns subtide.music.rhythm
   "Functions to help work with musical time."
   {:author "Jeff Rose"}
-  (:require [subtide.schedule :refer [now]]))
+  (:require [subtide.schedule :as schedule]))
 
 (defonce ^:private
   _PROTOCOLS_
@@ -49,31 +49,31 @@
   (metro-start [metro start-beat]
     (dosync
      (ensure bpm)
-     (ref-set start (- (now) (* start-beat (metro-tick metro))))))
+     (ref-set start (- (schedule/now) (* start-beat (metro-tick metro))))))
   (metro-bar-start [metro] @bar-start)
   (metro-bar-start [metro start-bar]
     (dosync
      (ensure bpm)
      (ensure bpb)
-     (ref-set bar-start (- (now) (* start-bar (metro-tock metro))))))
+     (ref-set bar-start (- (schedule/now) (* start-bar (metro-tock metro))))))
   (metro-tick  [metro] (beat-ms @bpm))
   (metro-tock  [metro] (dosync
                         (beat-ms (ensure bpb) (ensure bpm))))
   (metro-beat  [metro] (dosync
                         (ensure bpm)
-                        (inc (long (/ (- (now) (ensure start)) (metro-tick metro))))))
+                        (inc (long (/ (- (schedule/now) (ensure start)) (metro-tick metro))))))
   (metro-beat  [metro b] (dosync
                           (ensure bpm)
                           (+ (* b (metro-tick metro)) (ensure start))))
   (metro-beat-phase [metro]
     (dosync
      (ensure bpm)
-     (let [ratio (/ (- (now) (ensure start)) (metro-tick metro))]
+     (let [ratio (/ (- (schedule/now) (ensure start)) (metro-tick metro))]
        (- (float ratio) (long ratio)))))
   (metro-bar [metro] (dosync
                       (ensure bpm)
                       (ensure bpb)
-                      (inc (long (/ (- (now) (ensure bar-start)) (metro-tock metro))))))
+                      (inc (long (/ (- (schedule/now) (ensure bar-start)) (metro-tock metro))))))
   (metro-bar [metro b] (dosync
                         (ensure bpm)
                         (ensure bpb)
@@ -82,7 +82,7 @@
     (dosync
      (ensure bpm)
      (ensure bpb)
-     (let [ratio (/ (- (now) (ensure start)) (metro-tock metro))]
+     (let [ratio (/ (- (schedule/now) (ensure start)) (metro-tock metro))]
        (- (float ratio) (long ratio)))))
   (metro-bpm [metro] @bpm)
   (metro-bpm [metro new-bpm]
@@ -143,7 +143,7 @@
   (m :bpm 140) ; => set bpm to 140
   (m :start 80) ; => set start beat to 80"
   [bpm]
-  (let [cur-now (now)
+  (let [cur-now (schedule/now)
         start (ref cur-now)
         bar-start (ref cur-now)
         bpm   (ref bpm)

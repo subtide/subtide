@@ -1,6 +1,6 @@
 (ns subtide.studio.transport
-  (:use [subtide.music rhythm]))
+  (:require [subtide.music.rhythm :as rhythm]))
 
 (def DEFAULT-BPM 128)
 
-(def ^:dynamic *clock* (metronome DEFAULT-BPM))
+(def ^:dynamic *clock* (rhythm/metronome DEFAULT-BPM))
