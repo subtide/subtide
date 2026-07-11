@@ -3,7 +3,7 @@
   {:author "Jeff Rose and Sam Aaron"}
   (:require [clojure.java.io :as io]
             [clojure.string :as str]
-            [potemkin :as pot]
+            [potemkin.collections :as pot]
             [subtide.helpers.system :as system])
   (:use [subtide.helpers doc])
   (:import [java.util ArrayList Collections]
