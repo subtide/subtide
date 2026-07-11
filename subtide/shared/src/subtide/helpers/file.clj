@@ -8,7 +8,7 @@
    [subtide.helpers.string :refer :all]
    [subtide.helpers.system :refer [get-os]])
   (:import
-   (java.io StringWriter)
+   (java.io File StringWriter)
    (java.net URL)
    (java.nio.file Files Paths
                   SimpleFileVisitor StandardCopyOption
@@ -47,7 +47,7 @@
 (defn file?
   "Returns true if f is of type java.io.File"
   [f]
-  (= java.io.File (type f)))
+  (instance? File f))
 
 (defn- files->abs-paths
   "Given a seq of java.io.File objects, returns a seq of absolute paths for each
@@ -184,7 +184,7 @@
 (defn remote-file-size
   "Returns the size of the file referenced by url in bytes."
   [url]
-  (let [^java.net.URL url (if (= URL (type url)) url (URL. url))
+  (let [^URL url (if (instance? URL url) url (URL. url))
         ^java.net.URLConnection con (.openConnection url)]
     (when *authorization-header*
       (.setRequestProperty con "Authorization" (*authorization-header*)))

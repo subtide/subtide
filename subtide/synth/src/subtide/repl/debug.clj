@@ -225,7 +225,7 @@
 
 (defmethod sdef :default
   [sdef]
-  (throw (IllegalArgumentException. (str "Unable to convert to sdef: " (type sdef)))))
+  (throw (ex-info (str "Unable to convert to sdef: " (type sdef)) {})))
 
 (defn unified-sdef
   [s]

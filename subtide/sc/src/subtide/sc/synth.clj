@@ -217,7 +217,7 @@
   "Throws an error if list l is not a vector"
   [l]
   (when-not (vector? l)
-    (throw (ex-info (str "Your synth argument list is not a vector. Instead I found " (type l) ": " l)
+    (throw (ex-info (str "Your synth argument list is not a vector. Actual: " (class l))
                     {}))))
 
 (defn- ensure-valid-control-proxy-vec!
@@ -773,7 +773,7 @@
   (active-synths my-synth) ;=>[{:type synth :name \"my-synth\" :id 24}]
   "
   [& [synth-filter]]
-  (let [active-nodes (filter #(instance? subtide.sc.node.SynthNode (type %))
+  (let [active-nodes (filter #(instance? subtide.sc.node.SynthNode %)
                              (vals @active-synth-nodes*))]
     (if synth-filter
       (filter #(= (:name synth-filter) (:name %)) active-nodes)

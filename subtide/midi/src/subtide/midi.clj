@@ -320,7 +320,7 @@
   (byte-seq-to-array (seq byte-seq)))
 
 (defn- midi-mk-sysex-msg [bytes]
-  (let [bytes (if (= (type bytes) (type (byte-array 0)))
+  (let [bytes (if (bytes? bytes)
                 bytes
                 (midi-mk-byte-array (seq bytes)))
         sys-msg (SysexMessage.)]

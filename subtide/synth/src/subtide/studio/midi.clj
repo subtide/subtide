@@ -32,7 +32,7 @@
   [search devs-or-recvrs]
   (let [filter-pred (fn [dev]
                       (let [key-as-str (str (midi-mk-full-device-key dev))]
-                        (if (= java.util.regex.Pattern (type search))
+                        (if (instance? java.util.regex.Pattern search)
                           (re-find search key-as-str)
                           (.contains key-as-str search))))]
     (filter filter-pred devs-or-recvrs)))
@@ -124,7 +124,8 @@
      (midi-player-stop (get @poly-players* player-or-key))
      (let [player player-or-key]
        (when-not (= :subtide.studio.midi-player/midi-poly-player (type player))
-         (throw (IllegalArgumentException. (str "Expected a midi-poly-player. Got: " (prn-str (type player))))))
+         (throw (ex-info (str "Expected a midi-poly-player. Got: " (pr-str (type player)))
+                         {})))
        (remove-event-handler (:on-key player))
        (remove-event-handler (:off-key player))
        (reset! (:playing? player) false)

@@ -394,14 +394,13 @@
 (defn- job-string
   [job]
   (cond
-   (= RecurringJob (type job)) (recurring-job-string job)
-   (= ScheduledJob (type job)) (scheduled-job-string job)))
+    (instance? RecurringJob job) (recurring-job-string job)
+    (instance? ScheduledJob job) (scheduled-job-string job)))
 
 (defn show-schedule
   "Pretty print all of the pool's scheduled jobs"
   ([pool]
-     (let [jobs (scheduled-jobs pool)]
-       (if (empty? jobs)
-         (println "No jobs are currently scheduled.")
-         (dorun
-          (map #(println (job-string %)) jobs))))))
+   (let [jobs (scheduled-jobs pool)]
+     (if (empty? jobs)
+       (println "No jobs are currently scheduled.")
+       (run! (comp println job-string) jobs)))))

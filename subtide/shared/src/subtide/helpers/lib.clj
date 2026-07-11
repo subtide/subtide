@@ -74,14 +74,6 @@
   [col]
   (map to-keyword col))
 
-;; Now available in recent Clojure versions as of Nov. 29, 2009...
-;;(defn byte-array [len]
-;;  (make-array (. Byte TYPE) len))
-(def BYTE-ARRAY (byte-array 1))
-
-(defn byte-array? [obj]
-  (= (type BYTE-ARRAY) (type obj)))
-
 (defn type-checker [t]
   (fn [obj] (and (map? obj) (= (:type obj) t))))
 

@@ -238,7 +238,7 @@
 (defn ensure-synthdef!
   [obj]
   (when-not (synthdef? obj)
-    (throw (IllegalArgumentException. (str "Error, was expecting a synthdef, found: " (type obj))))))
+    (throw (ex-info (str "Error, was expecting a synthdef, found: " (type obj)) {}))))
 
 (defn- supercollider-synthdef-path
   "Returns a constructed path to a named synthdef on the current platform"
@@ -256,7 +256,7 @@
             (keyword? data) (spec-read-url synthdef-spec (URL. (str "file:" (supercollider-synthdef-path (to-str data)))) )
             (string? data) (spec-read-url synthdef-spec (URL. (str "file:" (resolve-tilde-path data))))
             (instance? URL data) (spec-read-url synthdef-spec data)
-            (byte-array? data) (spec-read-bytes synthdef-spec data)
+            (bytes? data) (spec-read-bytes synthdef-spec data)
             :else (throw (ex-info "synthdef-read expects either a string, a URL, or a byte-array argument."
                                   {:type (class data)
                                    :data data}))))))

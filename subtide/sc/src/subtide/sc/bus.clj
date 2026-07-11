@@ -104,12 +104,12 @@
 (defn control-bus?
   "Returns true if the specified bus is a map representing a control bus."
   [bus]
-  (isa? (type bus) ControlBus))
+  (instance? ControlBus bus))
 
 (defn audio-bus?
   "Returns true if the specified bus is a map representing a control bus."
   [bus]
-  (isa? (type bus) AudioBus))
+  (instance? AudioBus bus))
 
 (defn control-bus
   "Allocate one or more successive control buses. By default, just one
@@ -118,12 +118,12 @@
 
    You may also specify a name for the bus for labelling purposes."
   ([] (control-bus 1 ""))
-  ([n-channels-or-name]  (if (string? n-channels-or-name)
+  ([n-channels-or-name] (if (string? n-channels-or-name)
                           (control-bus 1 n-channels-or-name)
                           (control-bus n-channels-or-name "")))
   ([n-channels name]
-     (let [id (alloc-id :control-bus n-channels)]
-       (ControlBus. id n-channels :control name))))
+   (let [id (alloc-id :control-bus n-channels)]
+     (ControlBus. id n-channels :control name))))
 
 (defn audio-bus
   "Allocate one or more successive audio buses. By default, just one
@@ -138,8 +138,8 @@
                           (audio-bus 1 n-channels-or-name)
                           (audio-bus n-channels-or-name "")))
   ([n-channels name]
-     (let [id (alloc-id :audio-bus n-channels)]
-       (AudioBus. id n-channels :audio name))))
+   (let [id (alloc-id :audio-bus n-channels)]
+     (AudioBus. id n-channels :audio name))))
 
 ;; Reserve first control bus. This is a precautionary measure to stop
 ;; synths which have control bus args with defaults of 0 which aren't

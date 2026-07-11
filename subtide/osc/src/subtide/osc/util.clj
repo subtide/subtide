@@ -92,10 +92,12 @@
   correct types (number and list respectively)."
   [timestamp items]
   (when-not (number? timestamp)
-    (throw (ex-info (str "OSC bundle timestamp param needs to be a number. Got: " (type timestamp) " - " timestamp)
+    (throw (ex-info (str "OSC bundle timestamp param needs to be a number. Got: "
+                         (class timestamp) " - " timestamp)
                     {})))
   (when-not (sequential? items)
-    (throw (ex-info (str "OSC bundle items param needs to be a list. Got: " (type items) " - " items)
+    (throw (ex-info (str "OSC bundle items param needs to be a list. Got: "
+                         (class items) " - " items)
                     {})))
   (with-meta {:timestamp timestamp
               :items items}
