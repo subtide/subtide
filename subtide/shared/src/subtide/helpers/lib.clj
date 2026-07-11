@@ -338,47 +338,6 @@
                (arg-mapper args# ~arg-keys ~default-map)]
            ~@body)))))
 
-(defn invert-map
-  "Takes a map m and returns a new map that's keys are the m's vals and
-   that's vals are m's keys. Assumes that m's keys and vals are both
-   sets (i.e. don't contain any duplicates). If there are duplicate
-   values in the map they will result in key collisions and a smaller
-   result map.
-
-   (invert-map {:a 1, :b 2, :c 3}) ;=> {1 :a, 2 :b, 3 :c}"
-  [m]
-  (apply hash-map (interleave (vals m) (keys m))))
-
-
-(defn update-all
-  "Update a value retrieved with the key k in each element of a seq of
-   maps by applying f to the current value.
-
-   (update-all [{:a 1} {:a 2}] :a inc) ;=> ({:a 2} {:a 3})"
-  [maps k f]
-  (map (fn [elem]
-         (assoc elem k (f (get elem k))))
-       maps))
-
-(defn update-every-n
-  "Update every nth element in a seq of maps, optionally offset from the
-   start, by applying f to the current value.
-
-   (update-every-n [{:a 1} {:a 2} {:a 3} {:a 4} {:a 5}] 2 1 :a #(* 10 %))
-
-   ;=> ({:a 1} {:a 20} {:a 3} {:a 40} {:a 5})"
-  ([maps n k f]
-     (update-every-n maps n 0 k f))
-  ([maps n offset k f]
-   (concat
-     (take offset maps)
-     (map-indexed
-       (fn [i elem]
-         (cond-> elem
-           (zero? (mod i n)) (assoc k (f (get elem k)))))
-       maps))))
-
-
 (def DEFAULT-PROMISE-TIMEOUT 5000)
 
 (defn deref!
@@ -490,6 +449,7 @@
           recent-sc (last (sort sc-files))]
       recent-sc)))
 
+;; FIXME remove, just used to branch on OS
 (defmacro branch
   "Expansion time branching. Takes a test-expression and a set of
   clauses of the following form:

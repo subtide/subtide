@@ -1,6 +1,7 @@
 (ns subtide.sc.machinery.ugen.defaults
   "Default vals and fns required  to manipulate ugens."
   {:author "Jeff Rose"}
+  (:require [clojure.set :as set])
   (:use [subtide.helpers lib]))
 
 ;; Outputs have a specified calculation rate
@@ -21,7 +22,7 @@
                       :kr 2
                       :ar 3})
 
-(def REVERSE-RATES (invert-map RATES))
+(def REVERSE-RATES (set/map-invert RATES))
 
 (def HUMAN-RATES {:ir "initial"
                   :kr "control"
