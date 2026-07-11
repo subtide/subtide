@@ -102,12 +102,6 @@
            (let [val (get c :versions-seen #{})]
              (assoc c :versions-seen (conj val version/SUBTIDE-VERSION-STR))))))
 
-(defonce __MOVE-OLD-ROOT-DIR__
-  (let [root (:root SUBTIDE-DIRS)]
-    (when (file/path-exists? (file/mk-path root "config"))
-      (println "Warning - old config directory detected. Moved to ~/.subtide-old and replaced with new, empty config.")
-      (file/mv! root (str root "-old")))))
-
 (defonce __ENSURE-DIRS___
   (ensure-dir-structure))
 
