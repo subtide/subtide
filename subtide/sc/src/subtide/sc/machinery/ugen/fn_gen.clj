@@ -138,9 +138,8 @@
   [f spec]
   (fn [& args]
     (let [expanded (mapply f (multichannel-expand spec args))]
-      (if (= (count expanded) 1)
-        (first expanded)
-        expanded))))
+      (cond-> expanded
+        (= (count expanded) 1) first))))
 
 (defn idify-args
   "Returns a fn which idifies args (or leaves them untouched if they
@@ -237,10 +236,9 @@
   defined as being foldable and the args must not be a map or a combination of
   ordered params keyword args"
   [ug-name args]
-  (and
-   (FOLDABLE-BINARY-OPS (str ug-name))
-   (not (args-list-is-a-map? args))
-   (not (some keyword? args)))  )
+  (and (FOLDABLE-BINARY-OPS (str ug-name))
+       (not (args-list-is-a-map? args))
+       (not (some keyword? args))))
 
 (defn treat-as-ugen?
   "Checks the arglist to see whether the args contain other ugens or
@@ -249,15 +247,15 @@
   whether the ugen fn should be called or the original fn it collided with."
   [ugen-name args]
   (if (NUMERICAL-CLOJURE-FNS ugen-name)
-    (not (every? number? args))
-    (or
-     (and (some sc-ugen? args)
-          (every? #(or (sc-ugen? %) (number? %) (sequential? %) (keyword? %)) args))
-     (args-list-is-a-map? args))))
+    (not-every? number? args)
+    (or (and (some sc-ugen? args)
+             (every? (some-fn sc-ugen? number? sequential? keyword?) args))
+        (args-list-is-a-map? args))))
 
 (defn- unary-compatible-binary-ugen?
   [ugen-name args]
-  (and (= 1 (count args)) (contains? binary-op-unary-modes (str ugen-name))))
+  (and (= 1 (count args))
+       (contains? binary-op-unary-modes (str ugen-name))))
 
 (defn- binary-ugen->unary
   [ugen-name ugen-fn args]
@@ -270,10 +268,9 @@
   chain of ugens."
   [ugen-name ugen-fn args]
   (when (< (count args) 2)
-      (throw (IllegalArgumentException. (str "Attempted to call foldable binary op ugen with fewer than 2 args (" (count args) "). You passed: " [args] ))))
-  (let [x    (first args)
-        y    (second args)
-        more (drop 2 args)]
+    (throw (ex-info (str "Attempted to call foldable binary op ugen with fewer than 2 args (" (count args) "). You passed: " [args])
+                    {})))
+  (let [[x y & more] args]
     (reduce ugen-fn (ugen-fn x y) more)))
 
 (defn- mk-overloaded-ugen-fn
@@ -295,9 +292,8 @@
   (fn [& args]
     (let [force-ugen? (and (sequential? args)
                            (= :force-ugen (last args)))
-          args        (if force-ugen?
-                        (drop-last args)
-                        args)]
+          args (cond-> args
+                 force-ugen? drop-last)]
       (if (or (treat-as-ugen? ugen-name args)
               force-ugen?)
         (apply overloaded-fn args)
