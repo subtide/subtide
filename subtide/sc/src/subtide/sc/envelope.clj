@@ -29,19 +29,19 @@
    :cubed       7})
 
 (defn- curve->shape-id
-    "Map curve to envelope shape. If curve is a keyword, look it up in
-     ENV-SHAPES, otherwise assume it to be the generic cuve shape id of
-     5"
-    [curve]
-    (get ENV-SHAPES curve 5))
+  "Map curve to envelope shape. If curve is a keyword, look it up in
+  ENV-SHAPES, otherwise assume it to be the generic cuve shape id of
+  5"
+  [curve]
+  (get ENV-SHAPES curve 5))
 
 (defn- curve->curve-id
-    "Map curve to curve id. If curve is a keyword, assume the curve id
-     is a generic shape (0) otherwise, preserve curve id"
-    [curve]
-    (if (get ENV-SHAPES curve)
-      0
-      curve))
+  "Map curve to curve id. If curve is a keyword, assume the curve id
+  is a generic shape (0) otherwise, preserve curve id"
+  [curve]
+  (if (get ENV-SHAPES curve)
+    0
+    curve))
 
 (defn- curves->shape-ids
   "Create a repeating shapes list corresponding to a specific shape type.
@@ -128,9 +128,8 @@
                      [curves])
          shape-ids (curves->shape-ids curves)
          curve-ids (curves->curve-ids curves)]
-     (apply vector
-            (concat [(first levels) (count durations) release-node loop-node]
-                    (interleave (rest levels) durations shape-ids curve-ids))))))
+     (into [(first levels) (count durations) release-node loop-node]
+           (interleave (rest levels) durations shape-ids curve-ids)))))
 
 (defmacro defunk-env [fn-name docstring args & body]
   `(do
@@ -165,8 +164,6 @@
   [attack 0.01 sustain 1 release 1 level 1 curve :linear]
   (with-overloaded-ugens
     (envelope [0 level level 0] [attack sustain release] curve)))
-
-(def lin-env lin) ;; support legacy code
 
 (defunk-env cutoff
   "Create a cutoff envelope description suitable for use with the env-gen ugen"
