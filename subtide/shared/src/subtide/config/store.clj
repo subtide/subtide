@@ -89,7 +89,7 @@
   "Creates an empty config file if one doesn't already exist"
   [path]
   (when-not (file/file-exists? path)
-    (write-file-store path {})))
+    (store/write-file-store path {})))
 
 (defn- load-config-defaults
   []
@@ -102,25 +102,11 @@
            (let [val (get c :versions-seen #{})]
              (assoc c :versions-seen (conj val version/SUBTIDE-VERSION-STR))))))
 
-(defn- migrate-sc-args
-  "Previously the sc-args default was [], it's now {}"
-  []
-  (swap! live-config
-         (fn [c]
-           (if (not (map? (get c :sc-args)))
-             (assoc c :sc-args {})
-             c))))
-
-(defn- migrate-up
-  "Migrate old configs gracefully."
-  []
-  (migrate-sc-args))
-
 (defonce __MOVE-OLD-ROOT-DIR__
   (let [root (:root SUBTIDE-DIRS)]
-      (when (file/path-exists? (file/mk-path root "config"))
-        (println "Warning - old config directory detected. Moved to ~/.subtide-old and replaced with new, empty config.")
-        (file/mv! root (str root "-old")))))
+    (when (file/path-exists? (file/mk-path root "config"))
+      (println "Warning - old config directory detected. Moved to ~/.subtide-old and replaced with new, empty config.")
+      (file/mv! root (str root "-old")))))
 
 (defonce __ENSURE-DIRS___
   (ensure-dir-structure))
@@ -135,9 +121,7 @@
 
 (defonce __LOAD-CONFIG__
   (try
-    (do
-      (load-config-defaults)
-      (update-seen-versions)
-      (migrate-up))
+    (load-config-defaults)
+    (update-seen-versions)
     (catch Exception e
       (throw (Exception. (str "Unable to load config file - it doesn't appear to be valid clojure. Perhaps it has been modified externally? You may reset it by deleting " SUBTIDE-CONFIG-FILE " and restarting Subtide. Error: " (.printStackTrace e)))))))
