@@ -21,19 +21,17 @@
     (recur durspec durspec amount)
     (let [[d & ds] durs]
       (cond
-        (< amount d)
-        (cons (- d amount) ds)
-        (<= d amount)
-        (recur ds durspec (- amount d))))))
+        (< amount d) (cons (- d amount) ds)
+        (<= d amount) (recur ds durspec (- amount d))))))
 
 (defn- subtract-meta-dur [s dur]
   (when s
     (if-not (:durspec (meta s))
       (recur (vary-meta s (fn [m] (assoc m :durspec (:dur m)))) dur)
       (vary-meta
-       s
-       (fn [m]
-         (update m :dur subtract-dur (:durspec m) dur))))))
+        s
+        (fn [m]
+          (update m :dur subtract-dur (:durspec m) dur))))))
 
 (defn pnext
   "Like next, but with \"pattern semantics\". Lazily flattens nested sequences.
@@ -48,23 +46,18 @@
    (when (sequential? s)
      (let [[x & xs] s]
        (cond
-         (sequential? x)
-         (recur
-          (with-meta
-            (if (seq x)
-              (concat x xs)
-              xs)
-            (meta s)))
-
-         (some? xs)
-         (with-meta xs (meta s))
-
-         :else nil))))
+         (sequential? x) (recur
+                           (with-meta
+                             (if (seq x)
+                               (concat x xs)
+                               xs)
+                             (meta s)))
+         (some? xs) (with-meta xs (meta s))))))
   ([s dur]
    (if-let [sdurs (:dur (meta s))]
-     (let [s     (if (sequential? sdurs)
-                   s
-                   (vary-meta s update :dur vector))
+     (let [s     (cond-> s
+                   (not (sequential? sdurs))
+                   (vary-meta update :dur vector))
            sdurs (:dur (meta s))
            fdur  (pfirst sdurs)
            ndurs (pnext sdurs)]
@@ -95,10 +88,8 @@
          specs
          (map (fn [v spec]
                 (if (sequential? v)
-                  (let [n (pnext v (:dur vm 1))]
-                    (if (nil? n)
-                      spec
-                      n))
+                  (or (pnext v (:dur vm 1))
+                      spec)
                   v))
               seqs
               specs)
@@ -119,12 +110,7 @@
 
   Similar to SuperCollider's `PBind`, part of the Pattern library. "
   ([m repeat]
-   (cond
-     (= 0 repeat)
-     nil
-     (= ##Inf repeat)
-     (concat (pbind m) (lazy-seq (pbind m repeat)))
-     :else
+   (when-not (zero? repeat)
      (concat (pbind m) (lazy-seq (pbind m (dec repeat))))))
   ([m]
    (let [ks (keys m)
@@ -137,11 +123,11 @@
                    specs)
          done (set (remove nil?
                            (map (fn [k s]
-                                  (when (not (sequential? s))
+                                  (when-not (sequential? s)
                                     k))
                                 ks
                                 seqs)))]
-     (if  (= (count done) (count ks))
+     (if (= (count done) (count ks))
        [m]
        (pbind*
         ks
@@ -186,7 +172,6 @@
   [pattern beats]
   (let [length (apply + (map #(get % :dur 1) pattern))
         remain (- beats (mod length beats))]
-    (if (< 0 remain)
-      (concat pattern [{:type :rest
-                        :dur remain}])
-      pattern)))
+    (cond-> pattern
+      (< 0 remain) (concat [{:type :rest
+                             :dur remain}]))))
