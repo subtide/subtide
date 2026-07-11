@@ -91,19 +91,19 @@
 
 (defn mk-scugen
   "Create a SCUGen with the specified spec, rate, special and args"
-  [spec rate special args]
+  [{:keys [init] :as spec} rate special args]
   (let [rate (or (get RATES rate) rate)
         args (or args [])
-        ug (sc-ugen
-            (next-id ::ugen)
-            (:name spec)
-            rate
-            (REVERSE-RATES rate)
-            special
-            args
-            (or (:num-outs spec) 1)
-            spec)
-        ug (if (contains? spec :init) ((:init spec) ug) ug)]
+        ug (sc-ugen (next-id ::ugen)
+                    (:name spec)
+                    rate
+                    (REVERSE-RATES rate)
+                    special
+                    args
+                    (or (:num-outs spec) 1)
+                    spec)
+        ug (cond-> ug
+             init init)]
     (when (and *ugens* *constants*)
       (set! *ugens* (conj *ugens* ug))
       (doseq [const (filter number? (:args ug))]
