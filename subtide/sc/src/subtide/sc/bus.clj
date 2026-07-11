@@ -8,12 +8,12 @@
         [subtide.sc.node]
         [subtide.sc.cgens.tap]
         [subtide.helpers.lib]
-        [subtide.sc.foundation-groups :only [foundation-monitor-group]]
         [subtide.libs.deps :only [on-deps]])
-  (:require [clojure.pprint]
+  (:require [clojure.pprint :as pp]
             [subtide.schedule :as at-at]
             [subtide.sc.info :refer [server-num-input-buses server-num-output-buses]]
-            [subtide.libs.deps :refer [satisfy-deps]]))
+            [subtide.libs.deps :refer [satisfy-deps]]
+            [subtide.sc.foundation-groups :refer [foundation-monitor-group]]))
 
 ;; ## Buses
 ;;
@@ -23,17 +23,16 @@
 ;; but in SC they are implemented using a simple integer referenced
 ;; array of float values.
 
-(defonce ^{:private true} audio-bus-monitors* (atom {}))
-(defonce ^{:private true} control-bus-monitors* (atom {}))
-(defonce ^{:private true} bus-monitor-pool (at-at/mk-pool))
-(defonce ^{:private true} audio-bus-monitor-group* (atom nil))
+(defonce ^:private audio-bus-monitors* (atom {}))
+(defonce ^:private control-bus-monitors* (atom {}))
+(defonce ^:private bus-monitor-pool (at-at/mk-pool))
+(defonce ^:private audio-bus-monitor-group* (atom nil))
 
-(defonce ^{:private true} __PROTOCOLS__
-  (do
-    (defprotocol IBus
-      (free-bus [bus] "Free this control or audio bus - enabling the resource to be re-allocated"))))
+(defonce ^:private __PROTOCOLS__
+  (defprotocol IBus
+    (free-bus [bus] "Free this control or audio bus - enabling the resource to be re-allocated")))
 
-(defonce ^{:private true} __RECORDS__
+(defonce ^:private __RECORDS__
   (do
     (defrecord AudioBus [id n-channels rate name]
       to-sc-id*
@@ -49,7 +48,7 @@
       IBus
       (free-bus [this] (free-id :control-bus (:id this) (:n-channels this))))))
 
-(defmethod clojure.pprint/simple-dispatch AudioBus [b]
+(defmethod pp/simple-dispatch AudioBus [b]
   (println
    (format "#<audio-bus: %s, %s, id %d>"
            (if (empty? (:name b))
@@ -72,7 +71,7 @@
                       :else (str (:n-channels b) " channels"))
                     (:id b))))
 
-(defmethod clojure.pprint/simple-dispatch ControlBus [b]
+(defmethod pp/simple-dispatch ControlBus [b]
   (println
    (format "#<control-bus: %s, %s, id %d>"
            (if (empty? (:name b))
