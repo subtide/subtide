@@ -77,7 +77,6 @@
   [dev command control-id]
   (concat (midi-mk-full-device-event-key dev command) [control-id]))
 
-
 (defn midi-device-keys
   "Return a list of device event keys for the available MIDI devices"
   []

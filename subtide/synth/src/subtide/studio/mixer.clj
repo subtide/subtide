@@ -17,10 +17,6 @@
         [subtide.sc.node]
         [subtide.sc.bus]
         [subtide.sc.buffer]
-        [subtide.sc.foundation-groups :only [foundation-input-group
-                                              foundation-output-group
-                                              foundation-root-group
-                                              foundation-monitor-group]]
         [subtide.sc.machinery.synthdef]
         [subtide.sc.machinery.ugen.fn-gen]
         [subtide.sc.machinery.ugen.defaults]
@@ -29,8 +25,12 @@
         [subtide.sc.util]
         [subtide.music.time]
         subtide.studio.core)
-  (:require [subtide.studio fx]
-            [subtide.config.log :as log]))
+  (:require [subtide.studio.fx] ;;FIXME needed?
+            [subtide.config.log :as log]
+            [subtide.sc.foundation-groups :refer [foundation-input-group
+                                                  foundation-output-group
+                                                  foundation-root-group
+                                                  foundation-monitor-group]]))
 
 ;; An instrument abstracts the more basic concept of a synthesizer used by
 ;; SuperCollider.  Every instance of an instrument will be placed in the same
@@ -101,22 +101,18 @@
   (ensure-connected!)
   (let [in-cnt     (with-server-sync
                      #(server-num-input-buses)
-		     "whilst discovering the number of server input buses")
+                     "whilst discovering the number of server input buses")
         out-cnt    (with-server-sync
                      #(server-num-output-buses)
-		     "whilst discovering the number of server output buses")
-        out-mixers (doall
-                    (map
-                     (fn [out-bus]
-                       (out-bus-mixer [:head (foundation-output-group)]
-                                      :out-bus out-bus))
-                     (range out-cnt)))
-        in-mixers  (doall
-                    (map
-                     (fn [in-bus]
-                       (in-bus-mixer [:head (foundation-input-group)]
-                                     :in-bus (+ out-cnt in-bus)))
-                     (range in-cnt)))]
+                     "whilst discovering the number of server output buses")
+        out-mixers (mapv (fn [out-bus]
+                           (out-bus-mixer [:head (foundation-output-group)]
+                                          :out-bus out-bus))
+                         (range out-cnt))
+        in-mixers  (mapv (fn [in-bus]
+                           (in-bus-mixer [:head (foundation-input-group)]
+                                         :in-bus (+ out-cnt in-bus)))
+                         (range in-cnt))]
 
     (swap! studio* assoc :bus-mixers {:in in-mixers :out out-mixers})))
 
@@ -159,10 +155,10 @@
   from the audio server to the file, there will be 1.5s of silence at
   the start of the recording"
   [path & args]
-  (if-let [info (:recorder @studio*)]
-    (throw (Exception. (str "Recording already taking place to: "
-                            (get-in info [:buf-stream :path])))))
-
+  (when-let [info (:recorder @studio*)]
+    (throw (ex-info (str "Recording already taking place to: "
+                         (get-in info [:buf-stream :path]))
+                    {})))
   (let [path (resolve-tilde-path path)
         bs   (apply buffer-stream path args)
         rec  (master-recorder [:tail (foundation-monitor-group)] bs)]
@@ -182,9 +178,9 @@
 
 (defn recording?
   []
-  (not (nil? (:recorder @studio*))))
+  (some? (:recorder @studio*)))
 
-(def MIXER-BOOT-DEPS   [:server-ready :studio-setup-completed])
+(def MIXER-BOOT-DEPS [:server-ready :studio-setup-completed])
 
 (defn mixer-booted?
   "Check if the mixer has successfully booted yet."
@@ -255,7 +251,6 @@
 (defn clear-instruments
   "Clear all instruments from the session."
   []
-  (let [[{:keys [instruments]} _]
-        (swap-vals! studio* assoc :instruments {})]
+  (let [[{:keys [instruments]}] (swap-vals! studio* assoc :instruments {})]
     (doseq [[_name inst] instruments]
       (group-free (:group inst)))))
