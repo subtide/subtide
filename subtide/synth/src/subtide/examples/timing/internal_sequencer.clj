@@ -76,7 +76,7 @@
                 (pan2
                  (rlpf
                   (scaled-play-buf 1 buf rate bar-trg)
-                  (demand bar-trg 0 (dbrown 200 20000 50 INF))
+                  (demand bar-trg 0 (dbrown 200 20000 50 ##Inf))
                   (lin-lin:kr (lf-tri:kr 0.01) -1 1 0.1 0.9)))))))
 
 ;; Here's Dan Stowell's dubstep synth modified to work with the global

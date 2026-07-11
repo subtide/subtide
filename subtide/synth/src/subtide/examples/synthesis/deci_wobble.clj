@@ -7,11 +7,11 @@
 (defsynth deci-wobble []
   (let [temp-freq (/ 140 60 3)
         trig      (impulse temp-freq)
-        note      (demand trig 0 (dseq [40 43 47 47 40 37 43 28] INF))
+        note      (demand trig 0 (dseq [40 43 47 47 40 37 43 28] ##Inf))
         note      (slew:kr note 300 20)
         num-smp   (/ (sample-rate) temp-freq)
         rate      (/ (* 2 Math/PI) num-smp)
-        rate      (* rate 0.5 (demand:kr trig 0 (dseq [0.5 6 6 12 2 8 6 12] INF)))
+        rate      (* rate 0.5 (demand:kr trig 0 (dseq [0.5 6 6 12 2 8 6 12] ##Inf)))
         wobble    (lag (cos (phasor:ar trig rate Math/PI (* 2 Math/PI))) 0.01)
         sub       (* (lin-lin wobble -1 1 0 1)
                      (sin-osc (/ (midicps note) 2 )))

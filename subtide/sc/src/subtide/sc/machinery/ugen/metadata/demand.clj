@@ -254,7 +254,7 @@
 
     :rates #{:dr}
     :doc "Demand rate sequence generator. Outputs a sequence of values,
-          possibly repeating multiple times. Use INF as a repeat val to
+          possibly repeating multiple times. Use ##Inf as a repeat val to
           create an endless loop." }
 
 

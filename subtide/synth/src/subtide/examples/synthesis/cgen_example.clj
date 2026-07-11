@@ -6,7 +6,7 @@
   [bpm {:default 120 :doc "tempo of kick in beats per minute"}
    pattern {:default [1 0] :doc "sequence pattern of beats"}]
   (:ar
-   (let [kickenv (decay (t2a (demand (impulse:kr (/ bpm 30)) 0 (dseq pattern INF))) 0.7)
+   (let [kickenv (decay (t2a (demand (impulse:kr (/ bpm 30)) 0 (dseq pattern ##Inf))) 0.7)
          kick (* (* kickenv 7) (sin-osc (+ 40 (* kickenv kickenv kickenv 200))))]
      (clip2 kick 1))))
 

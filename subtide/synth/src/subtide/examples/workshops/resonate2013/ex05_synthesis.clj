@@ -13,7 +13,7 @@
   ;; A port to Subtide is almost equally succinct, but still hard to
   ;; understand...
   ;; https://soundcloud.com/toxi/rukanos-space-organ
-  (demo 60 (g-verb (sum (map #(blip (* (midicps (duty:kr % 0 (dseq [24 27 31 36 41] INF))) %2) (mul-add:kr (lf-noise1:kr 1/2) 3 4)) [1 1/2 1/4] [1 4 8])) 200 8))
+  (demo 60 (g-verb (sum (map #(blip (* (midicps (duty:kr % 0 (dseq [24 27 31 36 41] ##Inf))) %2) (mul-add:kr (lf-noise1:kr 1/2) 3 4)) [1 1/2 1/4] [1 4 8])) 200 8))
 
   ;; A more easy-on-the-eyes version would look like this:
   (demo 60
@@ -21,7 +21,7 @@
               ;; tempos/rates [1 1/2 1/4]
               ;; Each generator will cycle (at its own pace) through the sequence of
               ;; notes given to dseq and convert notes into actual frequencies
-              f (map #(midicps (duty:kr % 0 (dseq [24 27 31 36 41] INF))) [1 1/2 1/4])
+              f (map #(midicps (duty:kr % 0 (dseq [24 27 31 36 41] ##Inf))) [1 1/2 1/4])
               ;; Next we transpose the frequencies over several octaves
               ;; and create a band limited impulse generator (blip) for
               ;; each of the freq gens. The blip allows us to configure the number
@@ -44,9 +44,9 @@
               ;; create an impulse trigger firing once per bar
               trig (impulse:kr (/ bpm 160))
               ;; create frequency generator for a randomly picked note
-              freq (midicps (lag (demand trig 0 (dxrand notes INF)) 0.25))
+              freq (midicps (lag (demand trig 0 (dxrand notes ##Inf)) 0.25))
               ;; switch note durations
-              swr (demand trig 0 (dseq [1 6 6 2 1 2 4 8 3 3] INF))
+              swr (demand trig 0 (dseq [1 6 6 2 1 2 4 8 3 3] ##Inf))
               ;; create a sweep curve for filter below
               sweep (lin-exp (lf-tri swr) -1 1 40 3000)
               ;; create a slightly detuned stereo sawtooth oscillator
@@ -61,7 +61,7 @@
               wob (+ wob (* 0.2 (g-verb wob 9 5 0.7)))
               ;; create impulse generator from given drum pattern
               kickenv (decay (t2a (demand (impulse:kr (/ bpm 30)) 0
-                                          (dseq [1 0 0 0 0 0 1 0 1 0 0 1 0 0 0 0] INF))) 0.7)
+                                          (dseq [1 0 0 0 0 0 1 0 1 0 0 1 0 0 0 0] ##Inf))) 0.7)
               ;; use modulated sine wave oscillator
               kick (* (* kickenv 7) (sin-osc (+ 40 (* kickenv kickenv kickenv 200))))
               ;; clip at max volume to create distortion

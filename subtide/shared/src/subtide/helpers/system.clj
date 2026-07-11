@@ -27,14 +27,6 @@
   []
   (Integer. (System/getProperty "sun.arch.data.model")))
 
-(defn classpath-seq
-  "Return the classpath as a seq"
-  {:deprecated "This functions make certain assumptions about the class loaders
-                present, which will in many cases not be accurate."}
-  []
-  (map (memfn ^java.io.File getPath)
-       (seq (.getURLs ^java.net.URLClassLoader (.getClassLoader clojure.lang.RT)))))
-
 (defn windows-os?
   "Returns true if the current os is windows based"
   []
