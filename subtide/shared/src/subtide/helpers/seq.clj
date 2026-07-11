@@ -1,7 +1,6 @@
-(ns
-    ^{:doc "Helper functions for manipulating and testing sequences"
-      :author "Sam Aaron"}
-  subtide.helpers.seq
+(ns subtide.helpers.seq
+  "Helper functions for manipulating and testing sequences"
+  {:author "Sam Aaron"}
   (:require [clojure.zip :as zip]))
 
 (defn consecutive-ints?
@@ -45,7 +44,7 @@
 (defn find-first
   "Finds first element of seq s for which pred returns true"
   [pred s]
-  (first (filter pred s)))
+  (some #(when (pred %) %) s))
 
 (defn zipper-seq
   "Returns a lazy sequence of a depth-first traversal of zipper z"
