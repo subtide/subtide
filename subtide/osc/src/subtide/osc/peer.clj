@@ -5,13 +5,13 @@
            [java.nio ByteBuffer]
            [java.io Writer]
            [javax.jmdns JmDNS ServiceListener ServiceInfo])
-  (:use [clojure.set :as set]
-        [subtide.osc.util]
-        [subtide.osc.decode :only [osc-decode-packet]]
-        [subtide.osc.encode :only [osc-encode-msg osc-encode-bundle]]
-        [subtide.osc.pattern :only [matching-handlers]])
+  (:use [subtide.osc.util])
   (:require [subtide.schedule :as at-at]
-            [clojure.string :as string]))
+            [clojure.string :as string]
+            [subtide.osc.decode :as decode]
+            [subtide.osc.encode :as encode]
+            [subtide.osc.pattern :as pattern]
+            [clojure.set :as set]))
 
 (set! *warn-on-reflection* true)
 
@@ -23,12 +23,11 @@
   "Turn zeroconf on and register all services in zero-conf-services* if any."
   []
   (send zero-conf* (fn [zero-conf]
-                     (if zero-conf
-                       zero-conf
-                       (let [zero-conf (JmDNS/create)]
-                         (doseq [service (vals @zero-conf-services*)]
-                           (.registerService zero-conf service))
-                         zero-conf))))
+                     (or zero-conf
+                         (let [zero-conf (JmDNS/create)]
+                           (doseq [service (vals @zero-conf-services*)]
+                             (.registerService zero-conf service))
+                           zero-conf))))
   :zero-conf-on)
 
 (defn turn-zero-conf-off
@@ -82,7 +81,7 @@
   (let [src-addr (.receive chan buf)]
     (when (pos? (.position buf))
       (.flip buf)
-      [src-addr (osc-decode-packet buf)])))
+      [src-addr (decode/osc-decode-packet buf)])))
 
 (defn- send-loop
   "Loop for the send thread to execute in order to send OSC messages externally.
@@ -104,8 +103,8 @@
 
         (try
           (cond
-            (osc-msg? m) (osc-encode-msg send-buf m)
-            (osc-bundle? m) (osc-encode-bundle send-buf m send-nested-osc-bundles?))
+            (osc-msg? m) (encode/osc-encode-msg send-buf m)
+            (osc-bundle? m) (encode/osc-encode-bundle send-buf m send-nested-osc-bundles?))
           (.flip send-buf)
           ((:send-fn peer) peer send-buf)
           (catch Exception e
@@ -192,7 +191,7 @@
   [handlers]
   (fn [msg]
     (let [path (:path msg)
-          hs (matching-handlers path @handlers)]
+          hs (pattern/matching-handlers path @handlers)]
       (doseq [[path handler] hs]
         (let [res (try
                     ((:method handler) msg)

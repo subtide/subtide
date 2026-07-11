@@ -1,7 +1,8 @@
 (ns subtide.libs.asset.store
   "Local asset registry mechanism. Maintains a live file-store which maps asset 'keys' to local files."
   {:author "Kevin Neaton"}
-  (:require [subtide.config.store :as store])
+  (:require [clojure.string :as str]
+            [subtide.config.store :as store])
   (:use [subtide.helpers file]
         [subtide.config.file-store]))
 

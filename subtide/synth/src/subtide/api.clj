@@ -11,7 +11,7 @@
    (subtide.algo chance scaling trig fn lists)
    (subtide.config store)
    (subtide.libs asset event)
-   (subtide.music rhythm pitch tuning time)
+   (subtide.music rhythm pitch time)
    (subtide.repl debug examples graphviz
                   inst shell ugens)
    [subtide.freesound]
