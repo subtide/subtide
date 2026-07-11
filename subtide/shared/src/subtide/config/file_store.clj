@@ -12,7 +12,7 @@
 (defmulti write-file-store storage)
 (defmulti read-file-store  storage)
 
-(def F-LOCK :lock)
+(defonce F-LOCK (Object.))
 
 ;; Simple file-based storage
 (defmethod write-file-store :file

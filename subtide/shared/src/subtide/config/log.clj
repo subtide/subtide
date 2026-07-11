@@ -1,9 +1,7 @@
 (ns subtide.config.log
   "Basic logging functionality."
   {:author "Jeff Rose"}
-  (:require
-   [clojure.pprint :refer [pprint]]
-   [subtide.config.store :as store])
+  (:require [subtide.config.store :as store])
   (:import
    (java.time ZoneId)
    (java.time.format DateTimeFormatter)

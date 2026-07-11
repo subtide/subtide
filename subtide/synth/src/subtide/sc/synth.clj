@@ -15,7 +15,7 @@
   (:require
    [clojure.set :as set]
    [clojure.walk :as walk]
-   [subtide.config.log]
+   [subtide.config.log] ;;FIXME needed?
    [subtide.helpers.string :refer [hash-shorten]]
    [subtide.sc.cgens.env :refer [hold]]
    [subtide.sc.machinery.synthdef :as synthdef]
@@ -23,10 +23,9 @@
 
 (declare synth-player)
 
-(defonce ^{:private true} __RECORDS__
-  (do
-    (defrecord-ifn Synth [name ugens sdef args params instance-fn]
-      (partial synth-player sdef params))))
+(defonce ^:private __RECORDS__
+  (defrecord-ifn Synth [name ugens sdef args params instance-fn]
+    (partial synth-player sdef params)))
 
 (defn- valid-control-proxy-rate?
   [rate]

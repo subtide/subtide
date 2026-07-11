@@ -1,19 +1,18 @@
 (ns subtide.config.store
   "Library initialization and configuration."
   {:author "Jeff Rose"}
-  (:use [subtide.config.file-store]
-        [subtide.helpers.string :only [capitalize]]
-        [subtide.helpers.system :only [get-os system-user-name]]
-        [subtide.helpers.file :only [mkdir! file-exists? path-exists? mv! mk-path]]
-        [subtide version]
-        [clojure.java.io :only [delete-file]]))
+  (:require [subtide.config.file-store :as store]
+            [subtide.helpers.file :as file]
+            [subtide.helpers.string :as hstr]
+            [subtide.helpers.system :as sys]
+            [subtide.version :as version]))
 
 (declare live-store)
 (declare live-config)
 
 (def CONFIG-DEFAULTS
-  {:os (get-os)
-   :user-name (capitalize (system-user-name))
+  {:os (sys/get-os)
+   :user-name (hstr/capitalize (sys/system-user-name))
    :server :external
    :sc-args {}})
 
@@ -68,29 +67,28 @@
   @live-store)
 
 (def SUBTIDE-DIRS
-  (let [root   (mk-path (System/getProperty "user.home") ".subtide")
-        log    (mk-path root "log")
-        assets (mk-path root "assets")
-        speech (mk-path root "speech")]
+  (let [root   (file/mk-path (System/getProperty "user.home") ".subtide")
+        log    (file/mk-path root "log")
+        assets (file/mk-path root "assets")
+        speech (file/mk-path root "speech")]
       {:root root
        :log log
        :assets assets
        :speech speech}))
 
-(def ^String SUBTIDE-CONFIG-FILE     (mk-path (:root   SUBTIDE-DIRS) "config.clj"))
-(def ^String SUBTIDE-USER-STORE-FILE (mk-path (:root   SUBTIDE-DIRS) "user-store.clj"))
-(def ^String SUBTIDE-ASSETS-FILE     (mk-path (:assets SUBTIDE-DIRS) "assets.clj"))
-(def ^String SUBTIDE-LOG-FILE        (mk-path (:log    SUBTIDE-DIRS) "subtide.log"))
+(def ^String SUBTIDE-CONFIG-FILE     (file/mk-path (:root   SUBTIDE-DIRS) "config.clj"))
+(def ^String SUBTIDE-USER-STORE-FILE (file/mk-path (:root   SUBTIDE-DIRS) "user-store.clj"))
+(def ^String SUBTIDE-ASSETS-FILE     (file/mk-path (:assets SUBTIDE-DIRS) "assets.clj"))
+(def ^String SUBTIDE-LOG-FILE        (file/mk-path (:log    SUBTIDE-DIRS) "subtide.log"))
 
 (defn- ensure-dir-structure
   []
-  (dorun
-   (map #(mkdir! %) (vals SUBTIDE-DIRS))))
+  (run! file/mkdir! (vals SUBTIDE-DIRS)))
 
 (defn- ensure-file
   "Creates an empty config file if one doesn't already exist"
   [path]
-  (when-not (file-exists? path)
+  (when-not (file/file-exists? path)
     (write-file-store path {})))
 
 (defn- load-config-defaults
@@ -102,7 +100,7 @@
   (swap! live-config
          (fn [c]
            (let [val (get c :versions-seen #{})]
-             (assoc c :versions-seen (conj val SUBTIDE-VERSION-STR))))))
+             (assoc c :versions-seen (conj val version/SUBTIDE-VERSION-STR))))))
 
 (defn- migrate-sc-args
   "Previously the sc-args default was [], it's now {}"
@@ -120,9 +118,9 @@
 
 (defonce __MOVE-OLD-ROOT-DIR__
   (let [root (:root SUBTIDE-DIRS)]
-      (when (path-exists? (mk-path root "config"))
+      (when (file/path-exists? (file/mk-path root "config"))
         (println "Warning - old config directory detected. Moved to ~/.subtide-old and replaced with new, empty config.")
-        (mv! root (str root "-old")))))
+        (file/mv! root (str root "-old")))))
 
 (defonce __ENSURE-DIRS___
   (ensure-dir-structure))
@@ -132,8 +130,8 @@
     (ensure-file SUBTIDE-CONFIG-FILE)
     (ensure-file SUBTIDE-USER-STORE-FILE)))
 
-(defonce live-config (live-file-store SUBTIDE-CONFIG-FILE))
-(defonce live-store (live-file-store SUBTIDE-USER-STORE-FILE))
+(defonce live-config (store/live-file-store SUBTIDE-CONFIG-FILE))
+(defonce live-store (store/live-file-store SUBTIDE-USER-STORE-FILE))
 
 (defonce __LOAD-CONFIG__
   (try
