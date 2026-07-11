@@ -354,19 +354,17 @@
   in subtide)."
   [to-ns op-name special]
   (let [ugen-name (symbol (subtide-ugen-name op-name))
-        collider?    (ns-resolve to-ns ugen-name)
+        collider? (ns-resolve to-ns ugen-name)
         normalized-n (normalize-ugen-name op-name)
         orig-spec (get UGEN-SPECS "unaryopugen")
-        doc-spec  (get unaryopugen-docspecs normalized-n {})
-        doc-spec     (if collider?
-                       (add-extra-collider-info doc-spec collider? op-name)
-                       doc-spec)
+        doc-spec  (cond-> (get unaryopugen-docspecs normalized-n {})
+                    collider? (add-extra-collider-info collider? op-name))
         full-spec (merge orig-spec doc-spec {:name op-name
                                              :categories [["Unary Operations"]]})
         full-spec (doc/with-full-doc full-spec)
         metadata  {:doc (:full-doc full-spec)
-                   :arglists (list (vec (map #(symbol (:name %))
-                                             (:args full-spec))))}
+                   :arglists (list (mapv #(symbol (:name %))
+                                         (:args full-spec)))}
 
         ugen-name (with-meta ugen-name metadata)
         ugen-fn   (make-ugen-fn orig-spec :auto special)
@@ -382,19 +380,16 @@
   binaryopugen represents multiple functionality represented by multple fns
   in subtide)."
   [to-ns op-name special]
-  (let [
-        ugen-name    (symbol (subtide-ugen-name op-name))
+  (let [ugen-name    (symbol (subtide-ugen-name op-name))
         collider?    (ns-resolve to-ns ugen-name)
         normalized-n (normalize-ugen-name op-name)
         orig-spec    (get UGEN-SPECS "binaryopugen")
-        doc-spec     (get binaryopugen-docspecs normalized-n {})
-        doc-spec     (if (FOLDABLE-BINARY-OPS (str op-name))
-                       (assoc doc-spec :doc
-                              (str (:doc doc-spec) "\n\nThis binary op ugen is foldable. i.e. may take multiple args and fold them into a tree of ugens."))
-                       doc-spec)
-        doc-spec     (if collider?
-                       (add-extra-collider-info doc-spec collider? op-name)
-                       doc-spec)
+        doc-spec     (cond-> (get binaryopugen-docspecs normalized-n {})
+                       (FOLDABLE-BINARY-OPS (str op-name))
+                       (update :doc
+                               #(str %
+                                     "\n\nThis binary op ugen is foldable. i.e. may take multiple args and fold them into a tree of ugens."))
+                       collider? (add-extra-collider-info collider? op-name))
         full-spec    (merge orig-spec doc-spec {:name op-name
                                                 :categories [["Binary Operations"]]})
         full-spec    (doc/with-full-doc full-spec)
@@ -453,6 +448,6 @@
   [form metadata]
   `(let [ugen#      ~form
          ugen#      (with-meta ugen# ~metadata)
-         new-ugens# (vec (concat (butlast subtide.sc.bindings/*ugens*) [ugen#]))]
+         new-ugens# (conj (vec (butlast subtide.sc.bindings/*ugens*)) ugen#)]
      (set! subtide.sc.bindings/*ugens* new-ugens#)
      ugen#))
