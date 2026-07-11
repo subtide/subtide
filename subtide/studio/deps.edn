@@ -2,11 +2,12 @@
  :deps
  {org.clojure/clojure     {:mvn/version "1.12.5"}
   org.subtide/subtide.shared {:local/root "../shared"}
-  org.subtide/subtide.sc {:local/root "../sc"}
+  org.subtide/subtide.music {:local/root "../music"}
   org.subtide/subtide.schedule {:local/root "../schedule"}}
  :aliases
  {:test
-  {:extra-paths ["test" "test-resources"]}
+  {:extra-paths ["test" "test-resources"]
+   :extra-deps {org.clojure/test.check     {:mvn/version "1.1.1"}}}
   :test-runner
   {:extra-deps {lambdaisland/kaocha {:mvn/version "1.91.1392"}}
    :main-opts ["-m" "kaocha.runner"]}}}

@@ -38,3 +38,7 @@ pop
 pushd subtide/music
   ./bin/ci
 pop
+
+pushd subtide/studio
+  ./bin/ci
+pop
