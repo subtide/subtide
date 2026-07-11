@@ -61,7 +61,7 @@
   (let [f (first split-text)
         s (str (gen-padding init-indent) f " ")]
     (cond
-     (.endsWith s "\n")    [(str s (gen-padding init-indent)) 0]
+     (str/ends-with? s "\n")    [(str s (gen-padding init-indent)) 0]
      (> (count s) max-len) [(str s "\n" (gen-padding init-indent)) 0]
      :else                 [s (count s)])))
 
@@ -76,7 +76,7 @@
   require them to exist on one large line."
   ([txt max-len wrap-indent] (indented-str-block txt max-len wrap-indent 0))
   ([txt max-len wrap-indent init-indent]
-     (let [id                   (str (java.util.UUID/randomUUID))
+     (let [id                   (str (random-uuid))
            txt                  (str/trim txt)
            txt                  (str/replace txt #"[\n]{2}" id)
            txt                  (str/replace txt "\n" " ")

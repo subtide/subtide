@@ -1,8 +1,8 @@
-(ns ^{:doc "vbap reimplementation based on Ville Pukki's code for pd
-    and its sc port by Scott Wilson."
-      :author "Orm Finnendahl"
-      :date "06/06/2015"}
-    subtide.sc.vbap)
+(ns subtide.sc.vbap
+  "vbap reimplementation based on Ville Pukki's code for pd
+  and its sc port by Scott Wilson."
+  {:author "Orm Finnendahl"
+   :date "06/06/2015"})
 
 ;; VBAP originally created by Ville Pukki
 ;; This version is a complete reimplementation

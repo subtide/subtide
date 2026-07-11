@@ -4,7 +4,8 @@
   ; Decode OSC timetag
   commons-net/commons-net {:mvn/version "3.10.0"}
   ; ZeroConf support
-  javax.jmdns/jmdns       {:mvn/version "3.4.1"}}
+  javax.jmdns/jmdns       {:mvn/version "3.4.1"}
+  org.subtide/subtide.shared {:local/root "../shared"}}
 
  :aliases
  {:test

@@ -3,6 +3,7 @@
         org.subtide/subtide.synth {:local/root "subtide/synth"}
         org.subtide/subtide.freesound {:local/root "subtide/freesound"}
         org.subtide/subtide.sc {:local/root "subtide/sc"}
+        org.subtide/subtide.shared {:local/root "subtide/shared"}
         org.subtide/subtide.schedule {:local/root "subtide/schedule"}}
  :aliases {:test {:extra-paths ["subtide/synth/test" "subtide/synth/test-resources"]
                   :extra-deps {nubank/matcher-combinators {:mvn/version "3.9.1"}
