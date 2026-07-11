@@ -109,7 +109,7 @@
       (doseq [const (filter number? (:args ug))]
         (set! *constants* (conj *constants* const))))
     (if (> (:n-outputs ug) 1)
-      (map-indexed (fn [idx _] (output-proxy ug idx)) (range (:n-outputs ug)))
+      (map (fn [idx] (output-proxy ug idx)) (range (:n-outputs ug)))
       ug)))
 
 (defn- ugen-base-fn [spec rate special]
