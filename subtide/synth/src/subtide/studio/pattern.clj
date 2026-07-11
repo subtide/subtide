@@ -157,9 +157,7 @@
   ([start step]
    (iterate #(+ step %) start))
   ([start step size]
-   (if (= ##Inf size)
-     (pseries start step)
-     (take size (pseries start step)))))
+   (take size (pseries start step))))
 
 (defn pchoose
   "Randomly choose value from a collection with `rand-nth`."
