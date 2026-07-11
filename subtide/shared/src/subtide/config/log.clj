@@ -1,7 +1,8 @@
 (ns subtide.config.log
   "Basic logging functionality."
   {:author "Jeff Rose"}
-  (:require [subtide.config.store :as store])
+  (:require [clojure.stacktrace :as stacktrace]
+            [subtide.config.store :as store])
   (:import
    (java.time ZoneId)
    (java.time.format DateTimeFormatter)
@@ -94,11 +95,11 @@
   "Wrap body with a try/catch form, and log exceptions (using warning)."
   [message & body]
   `(try
-     ~@body
+     (do ~@body)
      (catch Exception ex#
        (println "Exception: " ex#)
        (warn (str ~message "\nException: " ex#
-                  (with-out-str (clojure.stacktrace/print-stack-trace ex#)))))))
+                  (with-out-str (stacktrace/print-stack-trace ex#)))))))
 
 ;;setup logger
 (defonce ^:private __setup-logs__

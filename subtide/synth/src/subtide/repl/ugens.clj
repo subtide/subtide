@@ -121,19 +121,16 @@
   "Prints Subtide documentation for a var or special form given its name.
   Accounts for colliding ugens"
   [name]
-
   `(let [std-doc#        (with-out-str (doc ~name))
          ug-spec#        (fetch-collider-ugen-spec ~(str name))
          nothing-found?# (and (empty? std-doc#)
                               (nil? ug-spec#))
          same?#          (and ug-spec#
                               (.contains std-doc# (:full-doc ug-spec#)))]
-
      (if nothing-found?#
        (println "Sorry, no documentation found for" '~name)
-       (do
-         (when-not (empty? std-doc#)
-           (println std-doc#))
-         (when (and (not same?#)
-                    ug-spec#)
-           (println (pretty-ugen-doc-string ug-spec# ugen-collide-ns-str)))))))
+       (do (when-not (empty? std-doc#)
+             (println std-doc#))
+           (when (and (not same?#)
+                      ug-spec#)
+             (println (pretty-ugen-doc-string ug-spec# ugen-collide-ns-str)))))))

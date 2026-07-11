@@ -353,8 +353,7 @@
     (inst-volume! bar 0 1) ;mute ch1.
 
   * Each instrument has an fx-group to which you can add any number of
-    'fx synths' using the inst-fx! function.
-  "
+    'fx synths' using the inst-fx! function."
   {:arglists '([name doc-string? params ugen-form])}
   [i-name & inst-form]
   (let [[i-name params ugen-form] (synth-form i-name inst-form)
@@ -394,13 +393,12 @@
                    (:instance-group inst)
                    (:mixer inst)]]
     (cond
-     (some #(= :loading @(:status %)) sub-nodes) :loading
-     (some #(= :destroyed @(:status %)) sub-nodes) :destroyed
-     (some #(= :paused @(:status %)) sub-nodes) :paused
-     (every? #(= :live @(:status %)) sub-nodes) :live
-     :else (throw (ex-info (str "Unknown instrument sub-node state: "
-                                (with-out-str (doseq [n sub-nodes] (pr n))))
-                           {})))))
+      (some #(= :loading @(:status %)) sub-nodes) :loading
+      (some #(= :destroyed @(:status %)) sub-nodes) :destroyed
+      (some #(= :paused @(:status %)) sub-nodes) :paused
+      (every? #(= :live @(:status %)) sub-nodes) :live
+      :else (throw (ex-info (str "Unknown instrument sub-node state: " (pr-str sub-nodes))
+                            {})))))
 
 (extend Inst
 
@@ -417,7 +415,7 @@
    :node-map-n-controls    node-map-n-controls*}
 
   protocols/IKillable
-  {:kill* (fn [this] (group-deep-clear (:instance-group this)))}
+  {:kill* (comp group-deep-clear :instance-group)}
 
   ISynthNodeStatus
   {:node-status            inst-status*

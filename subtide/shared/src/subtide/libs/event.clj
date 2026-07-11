@@ -208,7 +208,7 @@
   (when @log-events?
     (log-event "event: " event-type " " args))
   (when @event-debug*
-    (println "event: " (with-out-str (pr event-type args)) "\n"))
+    (println "event: " (pr-str event-type args) "\n"))
   (when @monitoring?*
     (swap! monitor* assoc event-type args))
   (binding [subtide.libs.handlers/*log-fn* log/error]

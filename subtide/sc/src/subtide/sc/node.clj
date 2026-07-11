@@ -94,7 +94,7 @@
   control or kill an inactive node."
   [node err-msg]
   (let [full-err-msg (str "inactive node modification attempted for node "
-                          (with-out-str (pr node))
+                          (pr-str node)
                           (when-not (empty? err-msg)
                             (str " whilst " err-msg)))
         inme         (inactive-node-modification-error)]
@@ -149,9 +149,9 @@
                    (when (not (float? val))
                      (throw (IllegalArgumentException.
                              (str "Incorrect arg. Was expecting a float and found "
-                                  (with-out-str (pr val))
+                                  (pr-str val)
                                   ". Full arg map: "
-                                  (with-out-str (pr arg-map))))))
+                                  (pr-str arg-map)))))
                    val))]
 
     (zipmap (map name-fn (keys arg-map))
@@ -509,7 +509,8 @@
   (ensure-node-active! node "getting node control values")
   (let [res   (recv "/n_set")
         cvals (do (apply snd "/s_get" (to-sc-id node) (stringify control-names))
-                  (:args (deref! res (str "attempting to get control values " name " for node " (with-out-str (pr node))))))]
+                  (:args (deref! res (str "attempting to get control values " name
+                                          " for node " (pr-str node)))))]
     (apply hash-map (keywordify (drop 1 cvals)))))
 
 (defn node-get-control
@@ -536,7 +537,8 @@
   (ensure-node-active! node "reading a range of node values")
   (let [res   (recv "/n_setn")
         cvals (do (snd "/s_getn" (to-sc-id node) (to-str name-index) n)
-                  (:args (deref! res (str "attempting to get " n " control values from arguement " name-index " for node " (with-out-str (pr node))))))]
+                  (:args (deref! res (str "attempting to get " n " control values from arguement " name-index " for node "
+                                          (pr-str node)))))]
     (vec (drop 3 cvals))))
 
 (defn node-map-controls*
@@ -813,7 +815,8 @@
            id    (to-sc-id node)]
        (let [reply-p (recv "/g_queryTree.reply")
              _       (snd "/g_queryTree" id ctls?)
-             tree    (:args (deref! reply-p (str "attempting to read the node tree for node " (with-out-str (pr node)))))]
+             tree    (:args (deref! reply-p (str "attempting to read the node tree for node "
+                                                 (pr-str node))))]
          (with-meta (parse-node-tree tree)
            {:type ::node-tree})))))
 

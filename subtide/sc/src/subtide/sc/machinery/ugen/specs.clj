@@ -112,15 +112,14 @@
   "Returns a string with debug information about the ugen's arguments"
   [spec ugen]
   (str "Supplied args: "
-       (with-out-str (pr (:orig-args ugen)))
+       (pr-str (:orig-args ugen))
        "\nExpected arg keys: "
-       (with-out-str (pr (spec-arg-names spec)))
+       (pr-str (spec-arg-names spec))
        "\nMerged args: "
-       (with-out-str (pr (:arg-map ugen)))
+       (pr-str (:arg-map ugen))
        (when *debugging*
-         (str
-          "\nFinal arglist: "
-          (with-out-str (pr (:args ugen)))))))
+         (str "\nFinal arglist: "
+              (pr-str (:args ugen))))))
 
 (defn- with-ugen-checker-fn
   "Calls the checker fn. If checker fn returns a string, throws an exception
@@ -155,11 +154,10 @@
                                "\n"
                                (ugen-arg-info spec ugen)
                                (when *debugging*
-                                 (str
-                                  "\n\nUgen:\n"
-                                  (with-out-str (pprint (simplify-ugen ugen))))))]
+                                 (str "\n\nUgen:\n"
+                                      (with-out-str (pprint (simplify-ugen ugen))))))]
         (if *checking*
-          (throw (IllegalArgumentException. error-message))
+          (throw (ex-info error-message {}))
           (println error-message))))
     ugen))
 
@@ -215,7 +213,9 @@
 (defn- ensure-num-out-arg-is-number!
   [val ug]
   (when-not (number? val)
-    (throw (IllegalArgumentException. (str "Argument for ugen " (:name ug) " must be a number, yet found: " (with-out-str (pr val)))))))
+    (throw (ex-info (str "Argument for ugen " (:name ug)
+                         " must be a number, yet found: " (pr-str val))
+                    {}))))
 
 (defn- with-num-outs-mode [spec ugen]
   (let [args-specs    (args-with-specs (:args ugen) spec :mode)
@@ -390,7 +390,7 @@
   (let [ug-name (subtide-ugen-name (:name spec))]
     (println "==== Pre-Processing =====")
     (println "Ugen " ug-name )
-    (println "Args: " (with-out-str (pr (:args ugen))))
+    (println "Args: " (pr-str (:args ugen)))
     (println "=========================\n")))
 
 (defn- print-args-post-processing [spec ugen]
