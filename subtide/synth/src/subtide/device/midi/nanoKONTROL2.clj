@@ -1,11 +1,10 @@
 (ns subtide.device.midi.nanoKONTROL2
-  (:use [subtide.midi]
-        [subtide.libs.event :only [event on-event on-latest-event]]
-        [subtide.core :only [control-bus control-bus-set!]]))
+  (:require [subtide.libs.event :refer [event on-event on-latest-event]]
+            [subtide.core :refer [control-bus control-bus-set!]])
+  (:use [subtide.midi]))
 
-(defonce ^{:private true} __RECORDS__
-  (do
-    (defrecord NanoKontrol2 [name out interfaces state buses])))
+(defonce ^:private __RECORDS__
+  (defrecord NanoKontrol2 [name out interfaces state buses]))
 
 (def event-handle [:midi-device "KORG INC." "SLIDER/KNOB" "nanoKONTROL2 SLIDER/KNOB" 0 :control-change])
 
@@ -15,15 +14,15 @@
   [config]
   (assoc config
     :interfaces
-    (into {}
-          (map (fn [[i-name i-info]]
-                 [i-name (assoc (dissoc i-info :control-defaults)
-                           :controls (into {}
-                                           (map (fn [[c-name c-info]]
-                                                  [c-name (merge (:control-defaults i-info)
-                                                                 c-info)])
-                                                (:controls i-info))))])
-               (:interfaces config)))))
+    (into {} (map (fn [[i-name i-info]]
+                    [i-name (-> i-info
+                                (dissoc :control-defaults)
+                                (assoc :controls
+                                       (into {} (map (fn [[c-name c-info]]
+                                                       [c-name (merge (:control-defaults i-info)
+                                                                      c-info)]))
+                                             (:controls i-info))))]))
+          (:interfaces config))))
 
 (def default-event-type
   {:button :on-event
@@ -179,17 +178,14 @@
   (doseq [m [sysex-1 sysex-2 sysex-3 sysex-4 sysex-5 sysex-6]]
     (midi-sysex (:out nko-or-out nko-or-out) m)))
 
-(defn leds-on-test
-  [nko]
+(defn leds-on-test [nko]
   (dotimes [n 100] (midi-control nko n 127)))
 
-(defn- led-on-
-  [out id]
+(defn- led-on- [out id]
   (let [led-id  (-> config :interfaces :leds :controls id :note)]
     (midi-control out led-id 127)))
 
-(defn- led-off-
-  [out id]
+(defn- led-off- [out id]
   (let [led-id (-> config :interfaces :leds :controls id :note)]
     (midi-control out led-id 0)))
 
@@ -205,8 +201,7 @@
   (let [out (:out nk)]
     (led-off- out id)))
 
-(defn- smr-col-on
-  [out col-num]
+(defn- smr-col-on [out col-num]
   (let [s (keyword (str "s" col-num))
         m (keyword (str "m" col-num))
         r (keyword (str "r" col-num))]
@@ -214,8 +209,7 @@
     (led-on- out m)
     (led-on- out r)))
 
-(defn- smr-col-off
-  [out col-num]
+(defn- smr-col-off [out col-num]
   (let [s (keyword (str "s" col-num))
         m (keyword (str "m" col-num))
         r (keyword (str "r" col-num))]
@@ -223,23 +217,21 @@
     (led-off- out m)
     (led-off- out r)))
 
-(defn intromation
-  ([out]
-     (let [intro-times (repeat 75)]
-       (doseq [id (range 8)]
-         (smr-col-on out id)
-         (Thread/sleep (nth intro-times id)))
-       (Thread/sleep 750)
-       (doseq [id (reverse (range 8))]
-         (smr-col-off out id)
-         (Thread/sleep (nth intro-times id))))))
+(defn intromation [out]
+  (let [intro-times (repeat 75)]
+    (doseq [id (range 8)]
+      (smr-col-on out id)
+      (Thread/sleep (nth intro-times id)))
+    (Thread/sleep 750)
+    (doseq [id (reverse (range 8))]
+      (smr-col-off out id)
+      (Thread/sleep (nth intro-times id)))))
 
 (defn note-controls-map
   [config]
   (let [controls (-> config :interfaces :input-controls :controls)]
-    (into {}
-          (map (fn [[k v]] [(:note v) k])
-               controls))))
+    (into {} (map (fn [[k {:keys [note]}]] [note k]))
+          controls)))
 
 (defn connect
   "Connect to a connected nanoKONTROL2 midi device. By default, it
@@ -257,12 +249,10 @@
   ([force-external-led-mode? midi-in-str midi-out-str]
      (let [out        (midi-out midi-out-str)
            interfaces (-> config :interfaces)
-           state      (into {}
-                            (map (fn [[k v]] [k (atom nil)])
-                                 (-> config :interfaces :input-controls :controls)))
-           buses     (into {}
-                            (map (fn [[k v]] [k (control-bus)])
-                                 (-> config :interfaces :input-controls :controls)))]
+           state      (into {} (map (fn [[k v]] [k (atom nil)]))
+                            (-> config :interfaces :input-controls :controls))
+           buses     (into {} (map (fn [[k _]] [k (control-bus)]))
+                           (-> config :interfaces :input-controls :controls))]
        (when force-external-led-mode?
          (set-external-led-mode! out))
 

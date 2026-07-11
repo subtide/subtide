@@ -1,7 +1,6 @@
-(ns
-    ^{:doc "Helper functions for manipulating maps"
-      :author "Sam Aaron"}
-  subtide.helpers.map)
+(ns subtide.helpers.map
+  "Helper functions for manipulating maps"
+  {:author "Sam Aaron"})
 
 (defn reverse-get
   "Returns the key of the first val in maps vals that equals

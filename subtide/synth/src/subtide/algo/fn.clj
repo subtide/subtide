@@ -1,7 +1,6 @@
-(ns
-    ^{:doc "Handy fn generators"
-      :author "Sam Aaron"}
-  subtide.algo.fn)
+(ns subtide.algo.fn
+  "Handy fn generators"
+  {:author "Sam Aaron"})
 
 (defn cycle-fn
   "Returns a fn which will cycle between each of the fns specified. The

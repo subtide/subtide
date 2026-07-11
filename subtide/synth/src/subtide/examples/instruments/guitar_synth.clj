@@ -1,6 +1,6 @@
 (ns subtide.examples.instruments.guitar-synth
-  ^{:doc "Guitar from subtide.synth.stringed usage examples"
-    :author "Roger Allen"}
+  "Guitar from subtide.synth.stringed usage examples"
+  {:author "Roger Allen"}
   (:use [subtide.live]
         [subtide.synth.stringed]))
 

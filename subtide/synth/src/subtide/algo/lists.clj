@@ -1,7 +1,6 @@
-(ns
-    ^{:doc "Handy list (not sequence) util fns"
-      :author "Sam Aaron"}
-  subtide.algo.lists)
+(ns subtide.algo.lists
+  "Handy list (not sequence) util fns"
+  {:author "Sam Aaron"})
 
 (defn rotate
   "Treat a list/vector as a circular data structure and rotate it by n
@@ -14,10 +13,10 @@
    Note, coll should be countable."
   [n coll]
   (let [size   (count coll)
-        offset (mod n size)
-        s      (cycle coll)
-        s      (drop offset s)]
-    (into [] (take size s))))
+        offset (mod n size)]
+    (into [] (comp (drop offset)
+                   (take size))
+          (cycle coll))))
 
 (defn fill
   "Create a new vector with the specified size containing either part of
@@ -32,9 +31,9 @@
    Note, coll should be non-empty and countable."
   [size coll]
   (assert (not (empty? coll)) "coll should not be empty")
-  (let [cnt (count coll )]
+  (let [cnt (count coll)]
     (if (>= cnt size)
-      (into [] (take size coll))
+      (into [] (take size) coll)
       (let [rem (mod size cnt)
             num (int (/ size cnt))]
         (into [] (concat (apply concat (repeat num coll))

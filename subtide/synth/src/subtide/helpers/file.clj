@@ -2,7 +2,7 @@
   "Useful file manipulation fns"
   {:author "Sam Aaron"}
   (:require
-   [clojure.java.io :refer :all]
+   [clojure.java.io :refer :all :as io]
    [clojure.string :as str]
    [org.satta.glob :as satta-glob]
    [subtide.helpers.string :refer :all]
@@ -17,11 +17,11 @@
 
 (set! *warn-on-reflection* true)
 
-(def ^{:dynamic true} *verbose-subtide-file-helpers* false)
-(def ^{:dynamic true} *authorization-header* false)
+(def ^:dynamic *verbose-subtide-file-helpers* false)
+(def ^:dynamic *authorization-header* false)
 
 (defn get-current-directory []
-  (. (java.io.File. ".") getCanonicalPath))
+  (. (io/file ".") getCanonicalPath))
 
 (defn print-if-verbose
   "Prints the arguments if *verbose-subtide-file-helpers* is bound to true. If

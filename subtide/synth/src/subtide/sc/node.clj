@@ -1,6 +1,6 @@
 (ns subtide.sc.node
   (:require
-   [clojure.pprint]
+   [clojure.pprint :as pp]
    [clojure.zip :as zip]
    [subtide.config.log :as log]
    [subtide.helpers.lib :refer :all]
@@ -83,7 +83,7 @@
 (derive SynthNode ::node)
 (derive SynthGroup ::node)
 
-(defmethod clojure.pprint/simple-dispatch SynthGroup [s-group]
+(defmethod pp/simple-dispatch SynthGroup [s-group]
   (println
    (format "#<synth-group[%s]: %s %d>" (name @(:status s-group)) (:group s-group) (:id s-group))))
 
@@ -158,7 +158,7 @@
     (zipmap (map name-fn (keys arg-map))
             (map val-fn (vals arg-map)))))
 
-(defmethod clojure.pprint/simple-dispatch SynthNode [s-node]
+(defmethod pp/simple-dispatch SynthNode [s-node]
   (println
    (format "#<synth-node[%s]: %s %d>"
            (name @(:status s-node)) (:synth s-node) (:id s-node))))
@@ -761,7 +761,7 @@
 ;;    ] * M
 ;;  ] * the number of nodes in the subtree
 
-(defonce ^{:dynamic true} *node-tree-data* nil)
+(defonce ^:dynamic *node-tree-data* nil)
 
 (defn- parse-synth-tree
   [id ctls?]
@@ -885,4 +885,4 @@
 (defn pp-node-tree
   "Pretty print the node tree to *out*"
   ([] (pp-node-tree (:root-group @foundation-groups*)))
-  ([root] (clojure.pprint/pprint (node-tree root))))
+  ([root] (pp/pprint (node-tree root))))

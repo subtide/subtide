@@ -1,7 +1,7 @@
-(ns
-    ^{:doc "Handy trig fns"
-      :author "Sam Aaron"}
-  subtide.algo.trig)
+(ns subtide.algo.trig
+  "Handy trig fns"
+  {:author "Sam Aaron"}
+  (:require [clojure.math :as math]))
 
 (defn cosr
   "Scaled, shifted (i.e. mul-add) cosine fn with the frequency specified in
@@ -17,7 +17,7 @@
   (cosr 6 2 10 8) ;=> 10
   (cosr 8 2 10 8) ;=> 12"
   [idx range centre period]
-  (+ centre (* range (Math/cos (* 2 Math/PI idx (/ 1 period))))))
+  (+ centre (* range (math/cos (* 2 math/PI idx (/ 1 period))))))
 
 (defn sinr
   "Scaled, shifted (i.e. mul-add) sine fn with the frequency specified in
@@ -33,7 +33,7 @@
   (sinr 6 2 10 8) ;=> 8
   (sinr 8 2 10 8) ;=> 10"
   [idx range centre period]
-  (+ centre (* range (Math/sin (* 2 Math/PI idx (/ 1 period))))))
+  (+ centre (* range (math/sin (* 2 math/PI idx (/ 1 period))))))
 
 (defn tanr
   "Scaled, shifted (i.e. mul-add) tan fn with the frequency specified in
@@ -51,4 +51,4 @@
   (tanr 6 2 10 8)        ;=> ~1.0886
   (tanr 8 2 10 8)        ;=> 10"
   [idx range centre period]
-  (+ centre (* range (Math/tan (* 2 Math/PI idx (/ 1 period))))))
+  (+ centre (* range (math/tan (* 2 math/PI idx (/ 1 period))))))

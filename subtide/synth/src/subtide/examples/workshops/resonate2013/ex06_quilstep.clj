@@ -1,10 +1,9 @@
-(ns
-  ^{:doc "Building a simple Quil/Processing based GUI for controlling
-          a running Subtide synth. The GUI supports buttons and
-          sliders, but can be extended with other control types."
-    :author "Karsten Schmidt"}
-  subtide.examples.workshops.resonate2013.ex06_quilstep
-  (:require [quil.core :as q :refer [defsketch]])
+(ns subtide.examples.workshops.resonate2013.ex06_quilstep
+  "Building a simple Quil/Processing based GUI for controlling
+  a running Subtide synth. The GUI supports buttons and
+  sliders, but can be extended with other control types."
+  {:author "Karsten Schmidt"}
+  (:require [quil.core :as q])
   (:use [subtide.live]))
 
 ;; You need `Quil` to run this namespace.
@@ -140,7 +139,7 @@
     (doseq [[id s] @sliders] (slider-handler id s x y))))
 
 ;; Define & launch the Quil sketch...
-(defsketch Resonate
+(q/defsketch Resonate
   :size [460 180]
   :title "Resonate 2013 Quilstep"
   :draw draw

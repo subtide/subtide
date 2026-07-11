@@ -1,8 +1,7 @@
-(ns
-  ^{:doc "Mini example of using MIDI events to construct
-          a baby drum machine using samples from freesound.org"
-    :author "Karsten Schmidt"}
-  subtide.examples.workshops.resonate2013.ex04_midi
+(ns subtide.examples.workshops.resonate2013.ex04_midi
+  "Mini example of using MIDI events to construct
+  a baby drum machine using samples from freesound.org"
+  {:author "Karsten Schmidt"}
   (:use [subtide.live]))
 
 ;; Here we define a map of MIDI notes to samples

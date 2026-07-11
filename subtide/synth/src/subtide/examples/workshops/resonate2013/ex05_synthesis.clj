@@ -1,7 +1,6 @@
-(ns
-    ^{:doc "A few examples of more complex audio synthesis,
-           ported from SuperCollider to Subtide"}
-  subtide.examples.workshops.resonate2013.ex05_synthesis
+(ns subtide.examples.workshops.resonate2013.ex05_synthesis
+  "A few examples of more complex audio synthesis,
+  ported from SuperCollider to Subtide"
   (:use [subtide.live]))
 
 ;; First let's use a tweet by Juan A. Romero

@@ -1,12 +1,9 @@
 (ns subtide.libs.event
   "A simple event system that processes fired events in a thread pool."
   {:author "Jeff Rose, Sam Aaron"}
-  (:require
-   [subtide.config.log :as log]
-   [subtide.libs.handlers :as handlers]
-   [subtide.helpers.ref :refer [swap-returning-prev!]])
-  (:import
-   (java.util.concurrent LinkedBlockingQueue)))
+  (:require [subtide.config.log :as log]
+            [subtide.libs.handlers :as handlers])
+  (:import (java.util.concurrent LinkedBlockingQueue)))
 
 (set! *warn-on-reflection* true)
 
@@ -144,7 +141,7 @@
                                  (catch Exception e
                                    (log/error "Handler Exception: "
                                               (with-out-str (.printStackTrace e)))))))
-        [old _] (swap-returning-prev! lossy-workers* assoc key worker)]
+        [old _] (swap-vals! lossy-workers* assoc key worker)]
     (when-let [old-worker (get old key)]
       (.put ^LinkedBlockingQueue (:queue old-worker) :die))
     (on-sync-event event-type
@@ -183,7 +180,7 @@
   (remove-event-handler ::bar-key)
   (event :foo :val 200) ; my-foo-handler no longer called"
   [key]
-  (let [[old new] (swap-returning-prev! lossy-workers* dissoc key)]
+  (let [[old new] (swap-vals! lossy-workers* dissoc key)]
     (when-let [old-worker (get old key)]
       (.put ^LinkedBlockingQueue (:queue old-worker) :die)))
   (log-event "Removing event handler associated with key: " key)
@@ -192,7 +189,7 @@
 (defn- remove-all-event-handlers
   "Remove all handlers. Do not call unless you know what you're doing!"
   []
-  (let [[old new] (swap-returning-prev! lossy-workers* (fn [_] {}))]
+  (let [[old new] (swap-vals! lossy-workers* (fn [_] {}))]
     (doseq [old-worker (vals old)]
       (.put ^LinkedBlockingQueue (:queue old-worker) :die)))
   (log-event "Removing all event handlers!")

@@ -1,9 +1,8 @@
-(ns
-  ^{:doc "Brief intro to Incanter and concept of overtones/harmonics.
-          Displays some graphs of how harmonics are used to
-          generate different wave forms."
-    :author "Karsten Schmidt"}
-  subtide.examples.workshops.resonate2013.ex03_graph
+(ns subtide.examples.workshops.resonate2013.ex03_graph
+  "Brief intro to Incanter and concept of overtones/harmonics.
+  Displays some graphs of how harmonics are used to
+  generate different wave forms."
+  {:author "Karsten Schmidt"}
   (:use [incanter core charts]))
 
 ;; You need Incanter to run this.

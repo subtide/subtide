@@ -1,9 +1,9 @@
 (ns
-    ^{:doc "Audio file encoding functions"
-      :author "Sam Aaron"}
   subtide.helpers.audio-file
-  (:use [clojure.java.io :only [file]]
-        [subtide.helpers.file :only [resolve-tilde-path]])
+  "Audio file encoding functions"
+  {:author "Sam Aaron"}
+  (:require [clojure.java.io :as io]
+            [subtide.helpers.file :as file])
   (:import [javax.sound.sampled AudioFormat AudioFileFormat AudioFormat$Encoding
                                 AudioFileFormat$Type AudioInputStream AudioSystem]
            [java.io ByteArrayInputStream]
@@ -27,7 +27,7 @@
   [data path frame-rate n-channels]
   (when (some #(or (< % -1) (> % 1)) data)
     (throw (Exception. (str "Unable to write audio file with this data as it contains sample points either less than -1 or greater than 1."))))
-  (let [path         (resolve-tilde-path path)
+  (let [path         (file/resolve-tilde-path path)
         frame-rate   (float frame-rate)
         n-channels   (int n-channels)
         sample-bytes (/ Short/SIZE 8)
@@ -46,6 +46,6 @@
         stream       (AudioInputStream. (ByteArrayInputStream. (.array ^ByteBuffer b-data))
                                         a-format
                                         data-size)
-        f            (file path)
+        f            (io/file path)
         f-type       AudioFileFormat$Type/WAVE]
     (AudioSystem/write stream f-type f)))

@@ -3,13 +3,13 @@
   Look at synthdef.clj that defines the format for SuperCollider
   synthesizer definition (.scsyndef) files for an example of usage."
   (:import (java.net URL)
-           (java.io FileInputStream FileOutputStream
+           (java.io FileOutputStream
                     DataInputStream DataOutputStream
                     BufferedInputStream BufferedOutputStream
                     ByteArrayOutputStream ByteArrayInputStream)))
 
-(def ^{:dynamic true} *spec-out* nil)
-(def ^{:dynamic true} *spec-in*  nil)
+(def ^:dynamic *spec-out* nil)
+(def ^:dynamic *spec-in*  nil)
 
 (defn- bytes-to-int [bytes]
   (-> bytes (ByteArrayInputStream.) (DataInputStream.) (.readInt)))
@@ -137,7 +137,7 @@
   (binding [*spec-in* (-> bytes (ByteArrayInputStream.) (BufferedInputStream.) (DataInputStream.))]
     (spec-read spec)))
 
-(defn spec-read-url [spec ^java.net.URL url]
+(defn spec-read-url [spec ^URL url]
   (with-open [ins (.openStream url)]
     (binding [*spec-in* (-> ins (BufferedInputStream.) (DataInputStream.))]
       (spec-read spec))))

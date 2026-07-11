@@ -1,7 +1,6 @@
-(ns
-  ^{:doc "Workshop exercises in musical pattern creation with Subtide."
-    :author "Karsten Schmidt"}
-  subtide.examples.workshops.resonate2013.ex01_phrasestudy
+(ns subtide.examples.workshops.resonate2013.ex01_phrasestudy
+  "Workshop exercises in musical pattern creation with Subtide."
+  {:author "Karsten Schmidt"}
   (:use
    [subtide.live]
    [subtide.inst.piano]))

@@ -28,7 +28,7 @@
 (def ^:dynamic *api-key* "32da10a118819877ec041752680588c62684c0b2")
 (def ^:dynamic *access-token* (atom (config/store-get :freesound-token)))
 
-(defonce ^{:private true} __RECORDS__
+(defonce ^:private __RECORDS__
   (do
     (defrecord-ifn FreesoundSample
       [id size n-channels rate status path args name freesound-id]

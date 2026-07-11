@@ -1,7 +1,6 @@
-(ns
-  ^{:doc "Exploration of musical degrees & scales."
-    :author "Karsten Schmidt"}
-  subtide.examples.workshops.resonate2013.ex02_bday
+(ns subtide.examples.workshops.resonate2013.ex02_bday
+  {:author "Karsten Schmidt"}
+  "Exploration of musical degrees & scales."
   (:use
    [subtide.live]
    [subtide.inst.piano]))
