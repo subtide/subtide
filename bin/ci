@@ -30,3 +30,11 @@ popd
 #pushd subtide/sc
 #  ./bin/ci
 #pop
+
+pushd subtide/shared
+  ./bin/ci
+pop
+
+pushd subtide/music
+  ./bin/ci
+pop
