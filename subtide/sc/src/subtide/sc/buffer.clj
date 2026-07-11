@@ -75,13 +75,14 @@
   (let [ibme (dyn-vars/inactive-buffer-modification-error)]
     (condp = ibme
       :silent    nil ;;do nothing
-      :warning   (println "Warning - " err-msg buf " " (with-out-str (print buf)))
-      :exception (throw (Exception. (str "Error - " err-msg " " (with-out-str (print buf)))))
+      :warning   (println "Warning - " err-msg buf " " (print-str buf))
+      :exception (throw (ex-info (str "Error - " err-msg " " (print-str buf)) {}))
       (throw
-       (IllegalArgumentException.
-        (str "Unexpected value for subtide.sc.dyn-vars/*inactive-buffer-modification-error*"
-             ibme
-             "Expected one of :silent, :warning, :exception."))))))
+        (ex-info
+          (str "Unexpected value for subtide.sc.dyn-vars/*inactive-buffer-modification-error*"
+               ibme
+               "Expected one of :silent, :warning, :exception.")
+          {})))))
 
 (defn assert-less-than-max-buffers [key]
   (when (connection/transient-server?)
@@ -274,7 +275,7 @@
                                    (server/snd "/b_free" id)
                                    (reset! (:status buf) :destroyed)
                                    (comms/server-sync uid))
-      (str "whilst freeing audio buffer " (with-out-str (pr buf))))
+      (str "whilst freeing audio buffer " (pr-str buf)))
     buf))
 
 (defn buffer-read
@@ -303,7 +304,7 @@
                                                     (= msg-start offset)
                                                     (= n-to-read (count m-args))))))]
            (server/snd "/b_getn" buf-id offset n-to-read)
-           (let [m (lib/deref! prom (str "attempting to read data from buffer " (with-out-str (pr buf))))
+           (let [m (lib/deref! prom (str "attempting to read data from buffer " (pr-str buf)))
                  [buf-id bstart blen & samps] (:args m)]
              ;(prn bstart blen n-vals-read)
              (dorun
@@ -447,7 +448,7 @@
   (assert (buffer? buf))
   (assert (and (number? flag) (pos? flag)) "the flags needs to be positive integer")
   (let [error-msg (str "attempting to generate wavetable "
-                       option " in buffer " (with-out-str (pr buf)))
+                       option " in buffer " (pr-str buf))
         buf-id    (:id buf)
         option    (lib/to-str option)
         prom      (server/recv "/done"
@@ -478,7 +479,7 @@
   ([buf index]
    (ensure-buffer-active! buf)
    (assert (buffer? buf))
-   (let [error-msg (str "attempting to receive a single value at index " index " in buffer " (with-out-str (pr buf)))
+   (let [error-msg (str "attempting to receive a single value at index " index " in buffer " (pr-str buf))
          buf-id (:id buf)
          prom   (server/recv "/b_set" (fn [msg]
                                         (let [[msg-buf-id msg-start _] (:args msg)]

@@ -63,11 +63,12 @@
                                           {:args args})))
                         (cond
                           ;; Infinite seqs can be used to generate values for expansion
-                          (inf? arg) [gcount
-                                      (conj seqs arg)
-                                      (cond-> fixed-flags (not seen-kv) next)
-                                      nil
-                                      seen-kv]
+                          (inf? arg)
+                          [gcount
+                           (conj seqs arg)
+                           (cond-> fixed-flags (not seen-kv) next)
+                           nil
+                           seen-kv]
 
                           ;; Regular, non-infinite and non-map collections get expanded
                           (and (expandable? arg)
@@ -80,7 +81,8 @@
                            nil
                            seen-kv]
 
-                          :else ;; Basic values get used for all expansions
+                          ;; Basic values get used for all expansions
+                          :else
                           [gcount
                            (conj seqs (repeat arg))
                            (cond-> fixed-flags (not seen-kv) next)
@@ -94,22 +96,22 @@
   [spec rate special args]
   (let [rate (or (get RATES rate) rate)
         args (or args [])
-        ug (sc-ugen
-            (next-id ::ugen)
-            (:name spec)
-            rate
-            (REVERSE-RATES rate)
-            special
-            args
-            (or (:num-outs spec) 1)
-            spec)
-        ug (if (contains? spec :init) ((:init spec) ug) ug)]
+        ug (sc-ugen (next-id ::ugen)
+                    (:name spec)
+                    rate
+                    (REVERSE-RATES rate)
+                    special
+                    args
+                    (or (:num-outs spec) 1)
+                    spec)
+        ug (cond-> ug
+             (contains? spec :init) (:init spec))]
     (when (and *ugens* *constants*)
       (set! *ugens* (conj *ugens* ug))
       (doseq [const (filter number? (:args ug))]
         (set! *constants* (conj *constants* const))))
     (if (> (:n-outputs ug) 1)
-      (map-indexed (fn [idx _] (output-proxy ug idx)) (range (:n-outputs ug)))
+      (map (fn [idx] (output-proxy ug idx)) (range (:n-outputs ug)))
       ug)))
 
 (defn- ugen-base-fn [spec rate special]
@@ -138,9 +140,8 @@
   [f spec]
   (fn [& args]
     (let [expanded (mapply f (multichannel-expand spec args))]
-      (if (= (count expanded) 1)
-        (first expanded)
-        expanded))))
+      (cond-> expanded
+        (= (count expanded) 1) first))))
 
 (defn idify-args
   "Returns a fn which idifies args (or leaves them untouched if they
@@ -154,10 +155,9 @@
   and if so unwraps it into keyword arguments. Otherwise applies f directly with args"
   [f]
   (fn [& args]
-    (if (and
-         (= 1 (count args))
-         (not (sc-ugen? (first args)))
-         (map? (first args)))
+    (if (and (= 1 (count args))
+             (not (sc-ugen? (first args)))
+             (map? (first args)))
       (apply f (apply concat (first args)))
       (apply f args))))
 
@@ -184,17 +184,17 @@
 
 (defn mk-generic-control-ugen
   [name rate n-outputs offset]
-  (with-meta {:id        (next-id ::ugen)
-              :name      name
-              :rate      (rate RATES)
-              :rate-name (REVERSE-RATES (rate RATES))
-              :special   offset
-              :args      nil
-              :n-outputs n-outputs
-              :outputs   (repeat n-outputs {:rate (rate RATES)})
-              :n-inputs  0
-              :inputs    []}
-    {:type ::control-ugen}))
+  (-> {:id        (next-id ::ugen)
+       :name      name
+       :rate      (rate RATES)
+       :rate-name (REVERSE-RATES (rate RATES))
+       :special   offset
+       :args      nil
+       :n-outputs n-outputs
+       :outputs   (repeat n-outputs {:rate (rate RATES)})
+       :n-inputs  0
+       :inputs    []}
+      (with-meta {:type ::control-ugen})))
 
 (derive ::control-ugen ::ugen)
 
@@ -226,7 +226,7 @@
   (isa? (type obj) ::control))
 
 (defn- args-list-is-a-map?
-  "Returns true if args list contains one element which is a map"
+  "Returns true if args list contains one element, a map"
   [args]
   (and (= (count args) 1)
        (map? (first args))))
@@ -237,10 +237,9 @@
   defined as being foldable and the args must not be a map or a combination of
   ordered params keyword args"
   [ug-name args]
-  (and
-   (FOLDABLE-BINARY-OPS (str ug-name))
-   (not (args-list-is-a-map? args))
-   (not (some keyword? args)))  )
+  (and (FOLDABLE-BINARY-OPS (str ug-name))
+       (not (args-list-is-a-map? args))
+       (not (some keyword? args))))
 
 (defn treat-as-ugen?
   "Checks the arglist to see whether the args contain other ugens or
