@@ -14,12 +14,10 @@
         [subtide.studio.mixer]
         [subtide.studio.fx]
         [subtide.helpers.lib]
-        [subtide.libs.event]
-        [potemkin :refer [def-map-type]])
-  (:require [clojure.pprint]
+        [subtide.libs.event])
+  (:require [clojure.pprint :as pp]
             [lentes.core :as l]
             [subtide.sc.protocols :as protocols]
-            [subtide.sc.util]
             [subtide.helpers.lib :as ov.lib]
             [subtide.sc.machinery.server.comms :refer [with-server-sync]]
             [subtide.libs.deps :as ov.deps]))
@@ -180,9 +178,9 @@
                  [ugens# constants#] (gather-ugens-and-constants (out inst-bus# form#))
                  ugens#              (topological-sort-ugens ugens#)
                  main-tree#          (set ugens#)
-                 side-tree#          (filter #(not (main-tree# %)) *ugens*)
+                 side-tree#          (remove main-tree# *ugens*)
                  ugens#              (concat ugens# side-tree#)
-                 constants#          (into [] (set (concat constants# *constants*)))]
+                 constants#          (into [] (distinct) (concat constants# *constants*))]
              [~sname
               full-name#
               ~params
@@ -194,7 +192,7 @@
 (defn instrument?
   "Returns true if o is an instrument, false otherwise"
   [o]
-  (= subtide.studio.inst.Inst (type o)))
+  (instance? subtide.studio.inst.Inst o))
 
 (defmacro with-server-sync-atom
   [action-fn error-msg]
@@ -363,7 +361,7 @@
         i-name                    (with-meta i-name (merge (meta i-name) {:type ::instrument}))]
     `(def ~i-name (inst ~i-name ~params ~ugen-form))))
 
-(defmethod clojure.pprint/simple-dispatch Inst [ins]
+(defmethod pp/simple-dispatch Inst [ins]
   (println (format "#<instrument: %s>" (:name ins))))
 
 (defmethod print-method Inst [ins ^java.io.Writer w]
@@ -374,8 +372,9 @@
     (.write w (format "#<instrument: %s>" (:name info)))))
 
 (defn load-instruments []
-  (doseq [synth (filter #(synthdef? %1)
-                        (map #(var-get %1)
+  (doseq [synth (filter synthdef?
+                        (map var-get
+                             ;;FIXME what is subtide.instrument?
                              (vals (ns-publics 'subtide.instrument))))]
     (load-synthdef synth)))
 
@@ -399,8 +398,9 @@
      (some #(= :destroyed @(:status %)) sub-nodes) :destroyed
      (some #(= :paused @(:status %)) sub-nodes) :paused
      (every? #(= :live @(:status %)) sub-nodes) :live
-     :else (throw (Exception. "Unknown instrument sub-node state: "
-                              (with-out-str (doseq [n sub-nodes] (pr n))))))))
+     :else (throw (ex-info (str "Unknown instrument sub-node state: "
+                                (with-out-str (doseq [n sub-nodes] (pr n))))
+                           {})))))
 
 (extend Inst
 

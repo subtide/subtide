@@ -336,7 +336,7 @@
   "Creates a oneshot event handler which will be triggered when node is
    destroyed. Returns event handler key."
   [node f]
-  (let [k  (uuid)
+  (let [k  (random-uuid)
         id (to-sc-id node)]
     (oneshot-event (node-destroyed-event-key id)
                    f
@@ -347,7 +347,7 @@
   "Creates a oneshot event handler which will be triggered when node is
    created. Returns event handler key."
   [node f]
-  (let [k  (uuid)
+  (let [k  (random-uuid)
         id (to-sc-id node)]
     (oneshot-event (node-created-event-key id)
                    f
@@ -359,14 +359,14 @@
    is paused. This on-pause handler is automatically removed when node
    is destroyed. Returns on-pause handler key."
   [node f]
-  (let [k  (uuid)
+  (let [k  (random-uuid)
         id (to-sc-id node)]
     (on-event (node-paused-event-key id)
                    f
                    id)
     (oneshot-event (node-destroyed-event-key id)
                    #(remove-event-handler k)
-                   (uuid))
+                   (random-uuid))
     k))
 
 (defn on-node-started
@@ -374,14 +374,14 @@
    is paused. This on-started handler is automatically removed when node
    is destroyed. Returns on-started handler key."
   [node f]
-  (let [k  (uuid)
+  (let [k  (random-uuid)
         id (to-sc-id node)]
     (on-event (node-started-event-key id)
                    f
                    id)
     (oneshot-event (node-destroyed-event-key id)
                    #(remove-event-handler k)
-                   (uuid))
+                   (random-uuid))
     k))
 
 ;; Setup the feedback handlers with the audio server.

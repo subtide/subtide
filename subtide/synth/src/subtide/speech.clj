@@ -3,8 +3,7 @@
     [subtide.sc.sample :only (sample)]
     [subtide.config.store :only (SUBTIDE-DIRS)]
     [clojure.java.shell :only (sh)]
-    [subtide.helpers.system :only (get-os)]
-    [subtide.helpers.lib :only (uuid)]))
+    [subtide.helpers.system :only (get-os)]))
 
 (def ^:private SPEECH-DIR (:speech SUBTIDE-DIRS))
 
@@ -41,12 +40,12 @@
 
 (defmulti ^:private say (fn [& args] (get-os)))
 
-(defmethod ^:private say :mac
+(defmethod say :mac
   [text {:keys [voice]
          :or {voice :vicki}
          :as options}]
   (let [voice (get VOICES voice)
-        out-file (str SPEECH-DIR "/" (uuid) ".aiff")]
+        out-file (str SPEECH-DIR "/" (random-uuid) ".aiff")]
     (sh "say" "-v" voice "-o" out-file text)
     out-file))
 

@@ -448,10 +448,8 @@
         ugens (map (partial ugen-constant-inputs constants) ugens)
         pnames (map (comp symbol :name) pnames)
         ugens (map (partial reverse-ugen-inputs pnames ugens) ugens)
-        ugens (filter #(not= "Control" (:name %)) ugens)
-        ugen-forms (map vector
-                        (map :sname ugens)
-                        (map ugen-form ugens))]
+        ugens (remove #(= "Control" (:name %)) ugens)
+        ugen-forms (map (juxt :sname ugen-form) ugens)]
     (print (format "(defsynth %s %s\n  (let [" sname param-vec))
     (println (ffirst ugen-forms) (second (first ugen-forms)))
     (doseq [[uname uform] (drop 1 ugen-forms)]

@@ -1,10 +1,10 @@
 (ns subtide.sc.defaults
-  (:use [subtide.helpers.file]
-        [subtide.helpers.lib :only [windows-sc-path]])
-  (:require [subtide.schedule :as at-at]
-            [subtide.config.store]))
+  (:require [clojure.math :as math]
+            [subtide.schedule :as at-at]
+            [subtide.config.store :as store]
+            [subtide.helpers.lib :as lib]))
 
-(def empty-foundation-groups {:subtide-group          nil
+(def empty-foundation-groups {:subtide-group           nil
                               :input-group             nil
                               :root-group              nil
                               :user-group              nil
@@ -34,7 +34,7 @@
 
 (def SERVER-PORT
   "Default port number used when booting external server. If nil, a random port is used"
-  (subtide.config.store/config-get [:sc-args :port]))
+  (store/config-get [:sc-args :port]))
 
 (def N-RETRIES
   "Number of times to attempt to connect to an externally booted server"
@@ -57,7 +57,7 @@
   "Default system paths to an externally installed SuperCollider server for
   various operating systems."
   {:linux ["/usr/bin/scsynth"]
-   :windows [(str (windows-sc-path) "\\scsynth.exe")]
+   :windows [(str (lib/windows-sc-path) "\\scsynth.exe")]
    :mac  ["/Applications/SuperCollider/scsynth"
           "/Applications/SuperCollider.app/Contents/Resources/scsynth"
           "/Applications/SuperCollider/SuperCollider.app/Contents/Resources/scsynth"]})
@@ -66,7 +66,7 @@
   "Default system paths to an externally installed SuperCollider server for
   various operating systems."
   {:linux ["/usr/bin/sclang"]
-   :windows [(str (windows-sc-path) "\\sclang.exe")]
+   :windows [(str (lib/windows-sc-path) "\\sclang.exe")]
    :mac  ["/Applications/SuperCollider.app/Contents/MacOS/sclang"]})
 
-(def SC-MAX-FLOAT-VAL (Math/pow 2 24))
+(def SC-MAX-FLOAT-VAL (math/pow 2 24))

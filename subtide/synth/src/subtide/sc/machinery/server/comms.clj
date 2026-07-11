@@ -1,7 +1,7 @@
 (ns subtide.sc.machinery.server.comms
   (:use [subtide.sc.machinery.server osc-validator]
         [subtide.libs event counters]
-        [subtide.helpers.lib :only [uuid deref!]])
+        [subtide.helpers.lib :only [deref!]])
   (:require [subtide.config.log :as log]))
 
 (defonce osc-debug*       (atom false))
@@ -51,7 +51,7 @@
    of action-fn."
   [action-fn handler-fn]
   (let [id  (next-id ::server-sync-id)
-        key (uuid)]
+        key (random-uuid)]
     (on-event "/synced"
               (fn [msg] (when (= id (first (:args msg)))
                          (handler-fn)
@@ -86,7 +86,7 @@
   ([action-fn error-msg]
      (let [id   (next-id ::server-sync-id)
            prom (promise)
-           key  (uuid)]
+           key  (random-uuid)]
        (oneshot-event "/synced"
                       (fn [msg] (when (= id (first (:args msg)))
                                  (deliver prom true)))
@@ -107,7 +107,7 @@
   ([action-fn error-msg]
      (let [id   (next-id ::server-sync-id)
            prom (promise)
-           key  (uuid)]
+           key  (random-uuid)]
        (on-event "/synced"
                  (fn [msg] (when (= id (first (:args msg)))
                             (deliver prom true)
@@ -131,7 +131,7 @@
   ([path] (server-recv path nil))
   ([path matcher-fn]
      (let [p   (promise)
-           key (uuid)]
+           key (random-uuid)]
        (on-sync-event path
                       (fn [info]
                         (when (or (nil? matcher-fn)

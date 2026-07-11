@@ -6,21 +6,18 @@
   {:author "Sam Aaron"}
   (:use [subtide.sc.machinery.ugen defaults]
         [subtide.helpers lib])
-  (:require [clojure.pprint]))
+  (:require [clojure.pprint :as pp]))
 
-(defonce ^{:private true} __RECORDS__
+(defonce ^:private __RECORDS__
   (do
     (defrecord SCUGen [id name rate rate-name special args n-outputs spec])
-
     (defrecord ControlProxy [name value rate rate-name])
-
     (defrecord OutputProxy [name ugen rate rate-name index])))
 
 (derive ControlProxy ::control-proxy)
 (derive ::control-proxy ::sc-ugen)
 (derive OutputProxy ::output-proxy)
 (derive ::output-proxy ::sc-ugen)
-
 
 (derive SCUGen ::sc-ugen)
 
@@ -37,21 +34,19 @@
           (nil? args)
           (nil? n-outputs)
           (nil? spec))
-    (throw (IllegalArgumentException. (str "Attempted to create an SCUGen with nil args. Got " [id name rate rate-name special args n-outputs spec])))
+    (throw (ex-info (str "Attempted to create an SCUGen with nil args. Got " [id name rate rate-name special args n-outputs spec])
+                    {}))
     (SCUGen. id name rate rate-name special args n-outputs spec)))
 
 (defn count-ugen-args
   "Count the number of ugens in the args of ug (and their args recursively)"
   [ug]
-  (let [args (:args ug)]
-    (reduce (fn [sum arg]
-              (if (sc-ugen? arg)
-                (+ sum 1 (count-ugen-args arg))
-                sum))
-            0
-            args)))
+  (reduce (fn [sum arg]
+            (cond-> sum
+              (sc-ugen? arg) (+ 1 (count-ugen-args arg))))
+          0 (:args ug)))
 
-(defmethod clojure.pprint/simple-dispatch SCUGen [ug]
+(defmethod pp/simple-dispatch SCUGen [ug]
   (println
    (str "#<sc-ugen: " (subtide-ugen-name (:name ug)) (:rate-name ug) " [" (count-ugen-args ug) "]>")))
 
@@ -71,7 +66,8 @@
                (nil? value)
                (nil? rate)
                (nil? rate-name))
-         (throw (IllegalArgumentException. (str "Attempted to create a ControlProxy with nil args. Got " [name value rate rate-name])))
+         (throw (ex-info (str "Attempted to create a ControlProxy with nil args. Got " [name value rate rate-name])
+                         {}))
          (ControlProxy. name value rate rate-name)))))
 
 (defn output-proxy
@@ -83,7 +79,8 @@
             (nil? rate)
             (nil? rate-name)
             (nil? index))
-      (throw (IllegalArgumentException. (str "Attempted to create an OutputProxy with nil args. Got " [ugen rate rate-name index])))
+      (throw (ex-info (str "Attempted to create an OutputProxy with nil args. Got " [ugen rate rate-name index])
+                      {}))
       (OutputProxy. "OutputProxy" ugen rate rate-name index))))
 
 (defn control-proxy?
@@ -100,8 +97,8 @@
    For debugging or visualising a ugen tree."
   [scug]
   (if (map? scug)
-    (assoc
-        (into {} scug) :args (map mappify-ugen (:args scug)))
+    (-> (into {} scug)
+        (assoc :args (map mappify-ugen (:args scug))))
     scug))
 
 (defn simplify-ugen
@@ -109,6 +106,7 @@
    For debugging or visualising a ugen tree."
   [scug]
   (if (map? scug)
-    (assoc
-        (dissoc (into {} scug) :spec :arg-map :orig-args) :args (map simplify-ugen (:args scug)))
+    (-> (into {} scug)
+        (dissoc :spec :arg-map :orig-args)
+        (assoc :args (map simplify-ugen (:args scug))))
     scug))

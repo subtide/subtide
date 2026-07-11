@@ -1,16 +1,13 @@
-(ns ^{:doc "Library of general purpose utility functions for Subtide
-            internals."
-      :author "Jeff Rose and Sam Aaron"}
-    subtide.helpers.lib
-    (:import [java.util ArrayList Collections]
-             [java.util.concurrent TimeUnit TimeoutException]
-             [java.io File])
-    (:require [clojure.string :as str]
-              [potemkin :refer [def-map-type def-derived-map]])
-    (:use [clojure.stacktrace]
-          [clojure.pprint]
-          [subtide.helpers doc]
-          [subtide.helpers.system :only [windows-os?]]))
+(ns subtide.helpers.lib
+  "Library of general purpose utility functions for Subtide internals."
+  {:author "Jeff Rose and Sam Aaron"}
+  (:require [clojure.java.io :as io]
+            [clojure.string :as str]
+            [potemkin :as pot]
+            [subtide.helpers.system :as system])
+  (:use [subtide.helpers doc])
+  (:import [java.util ArrayList Collections]
+           [java.util.concurrent TimeUnit TimeoutException]))
 
 (set! *warn-on-reflection* true)
 
@@ -21,7 +18,8 @@
 (defn to-str
   "If val is a keyword, return its name sans :, otherwise return val"
   [val]
-  (if (keyword? val) (name val) val))
+  (cond-> val
+    (keyword? val) name))
 
 (defn to-float
   "If val is a number or bool, return its float equivalent otherwise
@@ -51,7 +49,8 @@
    0. The exception to this allows for the preservation of number truth
    values, so an input of 0 maps to 0, and an input of 1 maps to 1."
   [obj]
-  (let [obj (if (number? obj) (float obj) obj)
+  (let [obj (cond-> obj
+              (number? obj) float)
         truthy (float 1)
         falsey (float 0)]
     (cond
@@ -86,22 +85,10 @@
 (defn type-checker [t]
   (fn [obj] (and (map? obj) (= (:type obj) t))))
 
-(defn uuid
-  "Creates a random, immutable UUID object that is comparable using the
-  '=' function."
-  [] (. java.util.UUID randomUUID))
-
 (defn cpu-count
   "Get the number of CPUs on this machine."
   []
   (.availableProcessors (Runtime/getRuntime)))
-
-(defn map-vals
-  "Takes a map m and returns a new map with all of m's values mapped
-   through f"
-  [f m]
-  (zipmap (keys m)
-          (map f (vals m))))
 
 (defn- map-entry [k v]
   (proxy [clojure.lang.IMapEntry] []
@@ -196,9 +183,9 @@
            (declare ~(symbol (str "map->" rec-name)))
            (declare ~(symbol (str "->" rec-name)))
 
-           ;; We expose the fields here in the `def-map-type` params so the in-scope
+           ;; We expose the fields here in the `pot/def-map-type` params so the in-scope
            ;; functions can refer to them directly.
-           (def-map-type ~rec-name [~@fields ~'m-- ~'mta--]
+           (pot/def-map-type ~rec-name [~@fields ~'m-- ~'mta--]
 
              (~'get [_# k# default-value#]
               (cond
@@ -280,24 +267,22 @@
 
            (defn ~(symbol (str "map->" rec-name)) [~params-sym]
              (~(symbol (str "->" rec-name))
-              ~@(->> k-fields
-                     (mapv (fn [k]
-                             `(~k ~params-sym))))))
+              ~@(mapv (fn [k]
+                        `(~k ~params-sym))
+                      k-fields)))
 
            (swap! *ov-record-cache assoc ~record-hash ~rec-name)
 
            ~rec-name))))
 
 (defn- syms-to-keywords [coll]
-  (map #(if (symbol? %)
-          (keyword %)
-          %)
+  (map #(cond-> %
+          (symbol? %) keyword)
        coll))
 
 (defn- keywords-to-syms [coll]
-  (map #(if (keyword? %)
-          (symbol (name %))
-          %)
+  (map #(cond-> %
+          (keyword? %) (-> % name symbol))
        coll))
 
 (defn arg-mapper
@@ -322,10 +307,9 @@
   (loop [args args
          names arg-names
          arg-map default-map]
-    (if (not (empty? args))
-      (if (and
-           (keyword? (first args))
-           (even? (count args)))
+    (if-not (empty? args)
+      (if (and (keyword? (first args))
+               (even? (count args)))
         (merge arg-map (apply hash-map args))
         (recur (next args)
                (next names)
@@ -370,8 +354,7 @@
   "Update a value retrieved with the key k in each element of a seq of
    maps by applying f to the current value.
 
-   (update-all [{:a 1} {:a 2}] :a inc) ;=> ({:a 2} {:a 3})
-  "
+   (update-all [{:a 1} {:a 2}] :a inc) ;=> ({:a 2} {:a 3})"
   [maps k f]
   (map (fn [elem]
          (assoc elem k (f (get elem k))))
@@ -383,18 +366,16 @@
 
    (update-every-n [{:a 1} {:a 2} {:a 3} {:a 4} {:a 5}] 2 1 :a #(* 10 %))
 
-   ;=> ({:a 1} {:a 20} {:a 3} {:a 40} {:a 5})
-  "
+   ;=> ({:a 1} {:a 20} {:a 3} {:a 40} {:a 5})"
   ([maps n k f]
      (update-every-n maps n 0 k f))
   ([maps n offset k f]
-     (concat
-      (take offset maps)
-      (map-indexed
+   (concat
+     (take offset maps)
+     (map-indexed
        (fn [i elem]
-         (if (zero? (mod i n))
-           (assoc elem k (f (get elem k)))
-           elem))
+         (cond-> elem
+           (zero? (mod i n)) (assoc k (f (get elem k)))))
        maps))))
 
 
@@ -414,16 +395,19 @@
      (deref! ref timeout-or-msg "")))
   ([ref timeout msg]
    (let [timeout-indicator (gensym "deref-timeout")
-         res               (deref ref timeout timeout-indicator)]
-     (if (= timeout-indicator res)
-       (throw (TimeoutException. (str "deref! timeout error. Dereference took longer than " timeout " ms" (when-not (empty? msg) (str " whilst " msg)))))
-       res))))
+         res (deref ref timeout timeout-indicator)
+         _ (when (= timeout-indicator res)
+             (throw (TimeoutException. (str "deref! timeout error. Dereference took longer than "
+                                            timeout " ms"
+                                            (when-not (empty? msg)
+                                              (str " whilst " msg))))))]
+     res)))
 
 (defn stringify-map-vals
   "converts a map by running all its vals through str
   (or name if val is a keyword"
   [m]
-  (into {} (map (fn [[k v]] [k (if (keyword? v) (name v) (str v))]) m)))
+  (update-vals m (fn [v] ((if (keyword? v) name str) v))))
 
 (defn- welcome-message
   [user-name]
@@ -434,7 +418,6 @@
               (str "Hello " user-name ", just take a moment to pause and focus your creative powers...")
               (str "Hello " user-name ". Do you feel it? I do. Creativity is rushing through your veins today!")]]
     (rand-nth opts)))
-
 
 (defn print-ascii-art-subtide-logo
   [user-name version-str]
@@ -462,7 +445,7 @@
   (normalize-ugen-name \"SinOsc\")  ;=> \"sinosc\"
   (normalize-ugen-name \"sin-osc\") ;=> \"sinosc\""
   [n]
-  (.replaceAll (.toLowerCase (str n)) "[-|_]" ""))
+  (.replaceAll (str/lower-case n) "[-|_]" ""))
 
 (defn subtide-ugen-name
   "A basic camelCase to with-dash name converter tuned to convert
@@ -471,8 +454,8 @@
   (subtide-ugen-name \"SinOsc\") ;=> \"sin-osc\""
   [^String n]
   (when-not (string? n)
-    (throw (IllegalArgumentException. (str "Cannot convert non-string obj " (with-out-str (pr n)) " to an subtide ugen name"))))
-
+    (throw (ex-info (str "Cannot convert non-string obj " (pr-str n) " to an subtide ugen name")
+                    {})))
   (let [n (.replaceAll n "([a-z])([A-Z])" "$1-$2")
         n (.replaceAll n "([a-z-])([0-9])([A-Z])" "$1$2-$3")
         n (.replaceAll n "([A-Z])([A-Z][a-z])" "$1-$2")
@@ -484,30 +467,27 @@
   "If the gen is a cgen or ugen returns the :name otherwise returns name
    unchanged assuming it's a keyword."
   [gen]
-  (if (and (associative? gen)
-           (or (= :subtide.sc.machinery.ugen.fn-gen/ugen (:type gen))
-               (= :subtide.sc.defcgen/cgen (:type gen))))
-    (keyword (:name gen))
-        gen))
+  (cond-> gen
+    (and (associative? gen)
+         (or (= :subtide.sc.machinery.ugen.fn-gen/ugen (:type gen))
+             (= :subtide.sc.defcgen/cgen (:type gen))))
+    (-> :name keyword)))
 
 (defn env-files
   "Returns the files that exist in the directory mentioned in env-var. Code from: https://stackoverflow.com/a/46840668/1005039 "
   [env-var]
-  (some-> env-var
-          System/getenv
-          File.
-          .listFiles))
+  (some-> env-var System/getenv io/file .listFiles))
 
 (defn windows-sc-path
   "Returns a string representing the path for SuperCollider on Windows,
    or nil if not on Windows."
   []
-  (when (windows-os?)
+  (when (system/windows-os?)
     (let [p-files   (map str (concat
                               (env-files "PROGRAMFILES")
                               (env-files "PROGRAMFILES(X86)")))
           sc-files  (filter #(str/includes? % "SuperCollider") p-files)
-          recent-sc (last (sort (seq sc-files)))]
+          recent-sc (last (sort sc-files))]
       recent-sc)))
 
 (defmacro branch
@@ -525,9 +505,8 @@
   [e & clauses]
   (let [default (when (odd? (count clauses))
                   (last clauses))
-        clauses (if (odd? (count clauses))
-                  (butlast clauses)
-                  clauses)]
+        clauses (cond-> clauses
+                  (odd? (count clauses)) butlast)]
     (get (apply hash-map clauses)
          (eval e)
          default)))

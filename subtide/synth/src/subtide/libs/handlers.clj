@@ -1,30 +1,14 @@
-(ns
-    ^{:doc "A simple event system that handles both synchronous and asynchronous events."
-      :author "Jeff Rose & Sam Aaron"}
-    subtide.libs.handlers
-  (:import (java.util.concurrent Executors ExecutorService))
-  (:use [clojure.stacktrace]))
+(ns subtide.libs.handlers
+  "A simple event system that handles both synchronous and asynchronous events."
+  {:author "Jeff Rose & Sam Aaron"}
+  (:import (java.util.concurrent Executors ExecutorService)))
 
 (set! *warn-on-reflection* true)
 
 (defrecord HandlerPool [pool handlers desc])
 
-(def ^{:dynamic true} *FORCE-SYNC?* false)
-(def ^{:dynamic true} *log-fn* nil)
-
-(defn- swap-returning-prev!
-  "Similar to swap! except returns vector containing the previous and new values
-
-  (def a (atom 0))
-  (swap-returning-prev! a inc) ;=> [0 1]"
-  [atom f & args]
-  (loop []
-    (let [old-val  @atom
-          new-val  (apply f (cons old-val args))
-          success? (compare-and-set! atom old-val new-val)]
-      (if success?
-        [old-val new-val]
-        (recur)))))
+(def ^:dynamic *FORCE-SYNC?* false)
+(def ^:dynamic *log-fn* nil)
 
 (defn- cpu-count
   "Get the number of CPUs on this machine."
@@ -41,12 +25,11 @@
   "Create a new event matcher handler map containing only the
   necessary keys."
   [syncs asyncs sync-one-shots async-one-shots]
-  (let [emh {}
-        emh (if syncs (assoc emh :syncs syncs) emh)
-        emh (if asyncs (assoc emh :asyncs asyncs) emh)
-        emh (if sync-one-shots (assoc emh :sync-one-shots sync-one-shots) emh)
-        emh (if async-one-shots (assoc emh :async-one-shots async-one-shots) emh)]
-    emh))
+  (cond-> {}
+    syncs (assoc :syncs syncs)
+    asyncs (assoc :asyncs asyncs)
+    sync-one-shots (assoc :sync-one-shots sync-one-shots)
+    async-one-shots (assoc :async-one-shots async-one-shots)))
 
 (defn- emh-keys
   "Return a seq of keys for the given event matcher handlers"
@@ -71,7 +54,7 @@
         sync-one-shots  (dissoc (:sync-one-shots emh) key)
         async-one-shots (dissoc (:async-one-shots emh) key)
         new-emh         (mk-emh syncs asyncs sync-one-shots async-one-shots)]
-    (when-not (= 0 (emh-count-handlers new-emh))
+    (when-not (zero? (emh-count-handlers new-emh))
       new-emh)))
 
 (defn- emh-rm-specific-handler
@@ -92,7 +75,7 @@
                           (dissoc (:async-one-shots emh) key)
                           (:async-one-shots emh))
         new-emh         (mk-emh syncs asyncs sync-one-shots async-one-shots)]
-    (when-not (= 0 (emh-count-handlers new-emh))
+    (when-not (zero? (emh-count-handlers new-emh))
       new-emh)))
 
 (defn- handlers-count-all
@@ -107,15 +90,15 @@
   "Returns a new handlers map omitting any event matchers which have no
   associated handler fns"
   [handlers]
-  (into {} (remove (fn [[k v]] (= v {})) handlers)))
+  (into {} (remove (fn [[_ v]] (= v {})))
+        handlers))
 
 (defn- handlers-keys
   "Returns a seq of all keys in handlers map"
   [handlers]
   (reduce (fn [keys [_ emh]]
-            (concat keys (emh-keys emh)))
-          []
-          handlers))
+            (into keys (emh-keys emh)))
+          [] handlers))
 
 (defn- handlers-rm-key
   "Returns a new handlers map ommitting key. Removes event-matcher if
@@ -155,17 +138,17 @@
   "Returns a new handlers map ommitting handler. Removes event-matcher
   if no handlers remain."
   [handlers key handler]
-  (into {} (filter second
-                   (map (fn [[event-matcher emh]]
-                          [event-matcher (emh-rm-specific-handler emh key handler)])
-                        handlers))))
+  (into {} (keep (fn [[event-matcher emh]]
+                   (when-some [handler (emh-rm-specific-handler emh key handler)]
+                     [event-matcher handler])))
+        handlers))
 
 (defn- remove-specific-handler!
   "Remove a specific handler fn. Returns true if the fn was removed."
   [hp key handler]
-  (let [[o n] (swap-returning-prev! (:handlers hp)
-                                    (fn [handlers]
-                                      (handlers-rm-specific-handler handlers key handler)))]
+  (let [[o n] (swap-vals! (:handlers hp)
+                          (fn [handlers]
+                            (handlers-rm-specific-handler handlers key handler)))]
     (not= o n)))
 
 (defn- default-matcher-fn
@@ -380,7 +363,7 @@
   :event-handlers-removed)
 
 (defn all-keys
-  "Returns a seq of all keys in handler pool hp."
+  "Returns all keys in handler pool hp."
   [hp]
   (let [handlers @(:handlers hp)]
     (handlers-keys handlers)))
