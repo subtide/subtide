@@ -25,3 +25,8 @@ popd
 #pushd subtide/freesound
 #  ./bin/ci
 #pop
+
+# TODO
+#pushd subtide/sc
+#  ./bin/ci
+#pop
