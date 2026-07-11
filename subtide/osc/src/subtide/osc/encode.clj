@@ -32,7 +32,9 @@
   ([buf] (encode-timetag buf OSC-TIMETAG-NOW))
   ([^ByteBuffer buf timestamp]
    (when-not (number? timestamp)
-     (throw (IllegalArgumentException. (str "OSC bundle timestamp needs to be a number. Got: " (type timestamp) " - " timestamp))))
+     (throw (ex-info (str "OSC bundle timestamp needs to be a number. Got: "
+                          (class timestamp) " - " timestamp)
+                     {})))
    (if (= timestamp OSC-TIMETAG-NOW)
      (doto buf (.putInt 0) (.putInt 1))
      (let [ntp-timestamp (TimeStamp/getNtpTime (long timestamp))

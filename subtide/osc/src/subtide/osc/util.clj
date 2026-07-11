@@ -20,7 +20,6 @@
   "Returns true if str contains any pattern-match characters"
   [str] (some #(str/includes? str %) PATTERN-MATCH-CHARS))
 
-;; TODO: Figure out how to detect a byte array correctly...
 (defn osc-type-tag
   "Generate a type tag for the argument list args. Each arg in args should be
   one of the following specific types and the type tag will consist of a series
@@ -52,16 +51,17 @@
   OSC-timetag
    * 64-bit big-endian fixed-point timestamp"
   [args]
-  (apply str
-         (map (fn [arg]
-                (condp = (type arg)
-                  Integer "i"
-                  Long    "h"
-                  Float   "f"
-                  Double  "d"
-                  (type PAD) "b" ; This is lame... what is a byte array an instance of?
-                  String  "s"))
-              args)))
+  (str/join
+    (mapv (fn [arg]
+            (cond
+              (instance? Integer arg) "i"
+              (instance? Long arg) "h"
+              (instance? Float arg) "f"
+              (instance? Double arg) "d"
+              (bytes? arg) "b"
+              (instance? String arg) "s"
+              :else (throw (ex-info (str "Unknown type: " (class arg))))))
+          args)))
 
 
 (defn mk-osc-msg
@@ -73,9 +73,9 @@
   * 0 or more args (where the number of args equals the number of types
     in the type tag"
   [path type-tag & args]
-  (let [type-tag (if (and type-tag (str/starts-with? type-tag ","))
-                   (subs type-tag 1)
-                   type-tag)]
+  (let [type-tag (cond-> type-tag
+                   (and type-tag (str/starts-with? type-tag ","))
+                   (subs 1))]
     (with-meta {:path path
                 :type-tag type-tag
                 :args args}
@@ -92,9 +92,11 @@
   correct types (number and list respectively)."
   [timestamp items]
   (when-not (number? timestamp)
-    (throw (IllegalArgumentException. (str "OSC bundle timestamp param needs to be a number. Got: " (type timestamp) " - " timestamp))))
+    (throw (ex-info (str "OSC bundle timestamp param needs to be a number. Got: " (type timestamp) " - " timestamp)
+                    {})))
   (when-not (sequential? items)
-    (throw (IllegalArgumentException. (str "OSC bundle items param needs to be a list. Got: " (type items) " - " items))))
+    (throw (ex-info (str "OSC bundle items param needs to be a list. Got: " (type items) " - " items)
+                    {})))
   (with-meta {:timestamp timestamp
               :items items}
     {:type :osc-bundle}))

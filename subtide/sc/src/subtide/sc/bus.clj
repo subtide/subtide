@@ -205,7 +205,7 @@
        (let [p  (server-recv "/c_set" (fn [info] (= id (first (:args info))))) ]
          (snd "/c_get" id)
          (second (:args (deref! p (str "attempting to read the current value of bus "
-                                       (with-out-str (pr bus))))))))))
+                                       (pr-str bus)))))))))
 
 (defn control-bus-set-range!
   "Asynchronously set a range of consecutive control buses to the
@@ -242,7 +242,7 @@
          (ensure-valid-bus-offset-with-len! bus offset len))
        (snd "/c_getn" id len)
        (drop 2 (:args (deref! p (str "attempting to get a range of consecutive control bus values of length "
-                                     len " from bus " (with-out-str (pr bus)))))))))
+                                     len " from bus " (pr-str bus))))))))
 
 (defn control-bus-get
   "Synchronously get the current value of a control bus. If a

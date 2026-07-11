@@ -22,7 +22,7 @@
   [event]
   (let [msg (.getMessage event)
         msg (cond
-              (= (type msg) MetaMessage) {:type :meta-message}
+              (instance? MetaMessage msg) {:type :meta-message}
               (instance? ShortMessage msg) (midi-msg msg)
               :default {:type :end-of-track})]
     (assoc msg :timestamp (.getTick event))))
