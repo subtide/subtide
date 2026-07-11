@@ -2,11 +2,10 @@
   "A high level MIDI API for sending and receiving messages with external MIDI
   devices and automatically hooking into Subtide's event system."
   {:author "Sam Aaron and Jeff Rose"}
-  (:require
-   [subtide.config.log :as log]
-   [subtide.libs.counters :refer :all]
-   [subtide.libs.event :refer :all]
-   [subtide.midi :as midi]))
+  (:require [subtide.config.log :as log]
+            [subtide.libs.counters :refer :all]
+            [subtide.libs.event :refer :all]
+            [subtide.midi :as midi]))
 
 (defonce midi-control-agents* (atom {}))
 (defonce poly-players* (atom {}))
@@ -107,8 +106,7 @@
 
   (def ding-state (atom {}))
 
-  (midi-inst-controller ding-state (partial ctl ding) ding-mapping)
-  "
+  (midi-inst-controller ding-state (partial ctl ding) ding-mapping)"
   [state-atom handler mapping]
   (let [ctl-key (keyword (gensym 'control-change))]
     (on-event [:midi :control-change]
@@ -236,16 +234,15 @@
 
 (defonce dev-num-cache (atom {}))
 
-(defn next-dev-num [counter-key device-map]
-  (or
-   (get @dev-num-cache (:info device-map))
-   (let [num (next-id
-              (str counter-key
-                   (:vendor device-map)
-                   (:name device-map)
-                   (:description device-map)))]
-     (swap! dev-num-cache assoc (:info device-map) num)
-     num)))
+(defn next-dev-num [counter-key {:keys [info] :as device-map}]
+  (or (get @dev-num-cache info)
+      (let [num (next-id
+                  (str counter-key
+                       (:vendor device-map)
+                       (:name device-map)
+                       (:description device-map)))]
+        (swap! dev-num-cache assoc info num)
+        num)))
 
 (defn- detect-midi-devices
   "Returns a set of MIDI device maps filtered to remove unwanted devices
