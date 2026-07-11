@@ -726,7 +726,7 @@
   [s]
   (instance? Synth s))
 
-(def ^{:dynamic true} *demo-time* 2000)
+(def ^:dynamic *demo-time* 2000)
 
 (defmacro run
   "Run an anonymous synth definition for a fixed period of time.

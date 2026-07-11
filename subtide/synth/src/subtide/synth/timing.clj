@@ -1,8 +1,8 @@
-(ns ^{:doc "A suite of synths useful for populating and manipulating
-            control buses of time signals i.e. generating and counting
-            beats."
-      :author "Sam Aaron"}
-  subtide.synth.timing
+(ns subtide.synth.timing
+  "A suite of synths useful for populating and manipulating
+  control buses of time signals i.e. generating and counting
+  beats."
+  {:author "Sam Aaron"}
   (:use [subtide.core]))
 
 (defsynth trigger [rate 100 out-bus 0]

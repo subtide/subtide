@@ -43,8 +43,7 @@
 
       (pbind {:degree [:i :i :iii :ii :i :iv :v]
               :dur    [1/2 1 1/2 1/2 1/2 1/2 1/2]
-              :root   ^{:dur 8} [:c3 :d3 :b2 :c3]})
-  "
+              :root   ^{:dur 8} [:c3 :d3 :b2 :c3]})"
   ([s]
    (when (sequential? s)
      (let [[x & xs] s]

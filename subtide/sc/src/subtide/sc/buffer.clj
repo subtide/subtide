@@ -21,7 +21,7 @@
 
 (set! *warn-on-reflection* true)
 
-(defonce ^{:private true} __RECORDS__
+(defonce ^:private __RECORDS__
   (do
     (defrecord BufferInfo [id size n-channels rate n-samples rate-scale duration]
       node/to-sc-id*

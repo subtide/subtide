@@ -1,9 +1,8 @@
-(ns
-  ^{:doc "Functions used to manipulate and generate the documentation for ugens"
-     :author "Sam Aaron & Jeff Rose"}
-  subtide.sc.machinery.ugen.doc
+(ns subtide.sc.machinery.ugen.doc
+  "Functions used to manipulate and generate the documentation for ugens"
+  {:author "Sam Aaron & Jeff Rose"}
+  (:require [subtide.helpers.string :as hstr])
   (:use [subtide.sc.machinery.ugen defaults]
-        [subtide.helpers.string :only [capitalize]]
         [subtide.helpers lib doc]))
 
 (defn- args-str
@@ -29,15 +28,17 @@
   "Returns a string representing the arg docs of a ugen spec"
   [spec]
   (let [args (:args spec)
-        name:doc (fn [arg] [(or (:name arg) "NAME MISSING!")  (or (capitalize (:doc arg)) "DOC MISSING!")])
+        name:doc (fn [arg]
+                   [(or (:name arg) "NAME MISSING!")
+                    (or (hstr/capitalize (:doc arg)) "DOC MISSING!")])
         arg-doc (map name:doc args)
         doc-map (into {} arg-doc)
         arg-max-key-len (length-of-longest-key doc-map)
         indentation (+ 5 arg-max-key-len)]
-    (apply str (map (fn [[^java.lang.String name docs]]
+    (apply str (map (fn [[name docs]]
                       (str "  "
                            name
-                           (gen-padding (inc (- arg-max-key-len (.length name))) " ")
+                           (gen-padding (inc (- arg-max-key-len (count name))) " ")
                            "- "
                            (indented-str-block docs DOC-WIDTH indentation)
                            "\n"))
@@ -47,7 +48,7 @@
   "Returns a string representing the full documentation for the given ugen spec"
   [spec]
   (let [doc    (or (:doc spec) "No documentation has been defined for this ugen.")
-        doc    (capitalize doc)
+        doc    (hstr/capitalize doc)
         g-name (subtide-ugen-name (name (:name spec)))]
     (str
      (when (:summary spec)

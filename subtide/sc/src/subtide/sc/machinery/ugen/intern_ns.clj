@@ -1,6 +1,5 @@
-(ns
-    ^{:doc "empty ns to intern ugens so that the ugen machinery can populate the atom overloaded-ugens* before the with-overloaded-ugens macro is used."}
-    subtide.sc.machinery.ugen.intern-ns)
+(ns subtide.sc.machinery.ugen.intern-ns
+  "empty ns to intern ugens so that the ugen machinery can populate the atom overloaded-ugens* before the with-overloaded-ugens macro is used.")
 
 
 (defn ugen-intern-ns

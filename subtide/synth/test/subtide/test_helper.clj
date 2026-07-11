@@ -1,6 +1,6 @@
 (ns subtide.test-helper
   "Helpful functions and macro's for writing Subtide tests."
-  (:require [subtide.libs.event :refer [sync-event]]
+  (:require [subtide.libs.event :as event]
             [subtide.sc.machinery.server.comms :as comms]
             [subtide.sc.server :as server]
             [subtide.studio.mixer :as mixer])
@@ -42,13 +42,6 @@
          (finally
            (future-cancel fut)))))
 
-(defmacro timeout
-  "Invokes a body of expressions with the given timeout. Attempts to
-  interrupt the current thread if the timeout is exceeded. Returns the
-  result of the last expression or throws a TimeoutException."
-  [ms & body]
-  `(invoke-timeout (^{:once true} fn [] ~@body) ~ms))
-
 (defn wait-while
   "Blocks the current thread while `pred` returns true.
 
@@ -71,12 +64,10 @@
 (defn wait-until
   "Blocks the current thread until `pred` returns true.
   See `wait-while` for supported options."
-  ([pred]
-     (wait-until pred nil 1))
-  ([pred timeout-ms]
-     (wait-until pred timeout-ms 1))
+  ([pred] (wait-until pred nil 1))
+  ([pred timeout-ms] (wait-until pred timeout-ms 1))
   ([pred timeout-ms interval-ms]
-     (wait-while (complement pred) timeout-ms interval-ms)))
+   (wait-while (complement pred) timeout-ms interval-ms)))
 
 
 ;; Test Fixtures
@@ -93,5 +84,7 @@
   Synchronously stops active nodes in the default foundation-group,
   clears the osc message queue, and kills all scheduled jobs in the
   player-pool if any."
-  [f] (try (f)
-           (finally (sync-event :reset))))
+  [f]
+  (try (f)
+       (finally
+         (event/sync-event :reset))))

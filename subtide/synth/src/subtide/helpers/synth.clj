@@ -1,7 +1,6 @@
-(ns
-    ^{:doc "Utility functions for synth construction"
-      :author "Sam Aaron"}
-  subtide.helpers.synth)
+(ns subtide.helpers.synth
+  "Utility functions for synth construction"
+  {:author "Sam Aaron"})
 
 (def valid-synth-node-pos #{:head :tail :before :after :replace})
 

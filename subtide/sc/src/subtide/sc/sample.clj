@@ -1,9 +1,7 @@
-(ns
-    ^{:doc "Making it easy to load and play audio samples (wav or aif files)."
-      :author "Jeff Rose"}
-    subtide.sc.sample
-  (:use [clojure.java.io :only [file]]
-        [subtide.helpers.lib]
+(ns subtide.sc.sample
+  "Making it easy to load and play audio samples (wav or aif files)."
+  {:author "Jeff Rose"}
+  (:use [subtide.helpers.lib]
         [subtide.helpers.synth]
         [subtide.libs.event]
         [subtide.libs.deps]
@@ -19,14 +17,14 @@
         [subtide.sc.cgens.io]
         [subtide.studio.core]
         [subtide.helpers.file :only [glob canonical-path file-extension]])
-    (:require [subtide.sc.envelope :refer [asr]]
-              [subtide.sc.info :refer [server-sample-rate]]
-              [subtide.libs.counters :refer [next-id]]
-              [subtide.osc]))
+  (:require [clojure.java.io :as io]
+            [subtide.sc.envelope :refer [asr]]
+            [subtide.sc.info :refer [server-sample-rate]]
+            [subtide.libs.counters :refer [next-id]]))
 
 (declare sample-player)
 
-(defonce ^{:private true} __RECORDS__
+(defonce ^:private __RECORDS__
   (do
     (defrecord Sample [id size n-channels rate status path args name]
       to-sc-id*
@@ -161,9 +159,9 @@
 (defn- load-sample*
   [path arg-map]
   (let [path (canonical-path path)
-        f    (file path)]
+        f    (io/file path)]
     (when-not (.exists f)
-      (throw (Exception. (str "Unable to load sample - file does not exist: " path))))
+      (throw (ex-info (str "Unable to load sample - file does not exist: " path) {})))
     (let [f-name   (or (:name arg-map) (.getName f))
           start    (get arg-map :start 0)
           n-frames (get arg-map :size 0)
@@ -275,7 +273,7 @@
                       *rate       (atom nil)
                       *status     (atom :loading)
                       path        path-or-cache
-                      name        (.getName (file path))
+                      name        (.getName (io/file path))
                       sample      (Sample. id *size *n-channels *rate *status path cache-args name)]
                   (future
                     (recv "/done"
@@ -292,9 +290,10 @@
                                       duration                 (when (> rate 0)
                                                                  (/ size rate))]
                                   (when (every? zero? [size rate n-channels])
-                                    (throw (Exception.
+                                    (throw (ex-info
                                             (str "Unable to read file - perhaps path is not a valid audio file (only "
-                                                 supported-file-types " supported) : " path))))
+                                                 supported-file-types " supported) : " path)
+                                            {})))
                                   (reset! *size size)
                                   (reset! *n-channels n-channels)
                                   (reset! *status :live)

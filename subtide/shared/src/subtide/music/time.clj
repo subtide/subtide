@@ -87,7 +87,7 @@
     (at-at/kill sched-fn *current-pool*)
     (at-at/kill sched-fn)))
 
-(def ^{:dynamic true :private true} *apply-ahead*
+(def ^:dynamic ^:private *apply-ahead*
   "Amount of time apply-by is scheduled to execute *before* it was
   scheduled by the user. This is to give room for any computation/gc
   cycles and to allow the executing fn to schedule actions on scsynth

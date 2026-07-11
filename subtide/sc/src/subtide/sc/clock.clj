@@ -1,10 +1,9 @@
-(ns
-    ^{:doc "A representation of time for the server"
-      :author "Sam Aaron"}
-    subtide.sc.clock
-    (:use [subtide.sc synth ugens node bus server info foundation-groups]
-          [subtide.libs deps])
-    (:require [subtide.sc.defaults :as defaults]))
+(ns subtide.sc.clock
+  "A representation of time for the server"
+  {:author "Sam Aaron"}
+  (:use [subtide.sc synth ugens node bus server info foundation-groups]
+        [subtide.libs deps])
+  (:require [subtide.sc.defaults :as defaults]))
 
 (defonce server-clock-start-time (atom nil))
 (defonce wall-clock-s (atom nil ))

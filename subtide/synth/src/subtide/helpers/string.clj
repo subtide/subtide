@@ -1,7 +1,6 @@
-(ns
-    ^{:doc "Useful string manipulation fns"
-      :author "Sam Aaron"}
-  subtide.helpers.string
+(ns subtide.helpers.string
+  "Useful string manipulation fns"
+  {:author "Sam Aaron"}
   (:require [clojure.string :as str]
             [subtide.helpers.hash :as hash]))
 

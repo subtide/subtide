@@ -1,7 +1,6 @@
-(ns
-    ^{:doc "Useful synths for manipulating buffers"
-      :author "Sam Aaron"}
-  subtide.synth.buffer
+(ns subtide.synth.buffer
+  "Useful synths for manipulating buffers"
+  {:author "Sam Aaron"}
   (:use [subtide.core]))
 
 (defsynth mono-player

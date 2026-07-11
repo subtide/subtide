@@ -1,7 +1,6 @@
-(ns
-    ^{:doc "Functions for returning information regarding the connected SC server"
-      :author "Sam Aaron"}
-    subtide.sc.info
+(ns subtide.sc.info
+  "Functions for returning information regarding the connected SC server"
+  {:author "Sam Aaron"}
   (:use [subtide.libs.event]
         [subtide.libs.counters]
         [subtide.sc.synth]

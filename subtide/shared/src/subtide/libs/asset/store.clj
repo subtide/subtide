@@ -1,23 +1,20 @@
-(ns
-    ^{:doc "Local asset registry mechanism. Maintains a live file-store which maps asset 'keys' to local files."
-      :author "Kevin Neaton"}
-   subtide.libs.asset.store
-  (:use [clojure.java.io :only [file]]
-        [clojure.walk :only [postwalk]]
-        [subtide.helpers file]
-        [subtide.config.store :only [SUBTIDE-ASSETS-FILE]]
+(ns subtide.libs.asset.store
+  "Local asset registry mechanism. Maintains a live file-store which maps asset 'keys' to local files."
+  {:author "Kevin Neaton"}
+  (:require [subtide.config.store :as store])
+  (:use [subtide.helpers file]
         [subtide.config.file-store]))
 
 (defn- ensure-assets-file
   "Creates empty assets file if one doesn't already exist"
   []
-  (when-not (file-exists? SUBTIDE-ASSETS-FILE)
-    (write-file-store SUBTIDE-ASSETS-FILE {})))
+  (when-not (file-exists? store/SUBTIDE-ASSETS-FILE)
+    (write-file-store store/SUBTIDE-ASSETS-FILE {})))
 
 (defonce __ENSURE-LIVE-ASSET-STORE__
   (ensure-assets-file))
 
-(defonce assets* (live-file-store SUBTIDE-ASSETS-FILE))
+(defonce assets* (live-file-store store/SUBTIDE-ASSETS-FILE))
 
 (defn- vectorize
   "Returns a flat vector from the given args."
@@ -57,7 +54,8 @@
   tilde-paths, and glob strings will all be expanded relative to the current
   project's root directory, resulting in a list of canonical file paths."
   [paths]
-  (->> (mapcat ls* paths)
+  (->> paths
+       (mapcat ls*)
        (filter #(.isFile ^java.io.File %))
        (map #(.getCanonicalPath ^java.io.File %))))
 
@@ -74,20 +72,17 @@
 (defn unregister-assets!
   "Unregister all asset(s) registered with a given key. If paths are supplied
   only those paths will be unregistered. Returns the resulting entry."
-  ([key]
-     (swap! assets* dissoc key))
+  ([key] (swap! assets* dissoc key))
   ([key & paths]
-     (let [new-assets (swap! assets* update-assets* update-in [key] #(when % (remove (set paths) %)))]
-       (select-keys new-assets [key]))))
+   (let [new-assets (swap! assets* update-assets* update key #(when % (doall (remove (set paths) %))))]
+     (select-keys new-assets [key]))))
 
 (defn registered-assets
   "Get all of the asset paths registered with the given key. Provide a name to
   filter by filename. Returns a seq of path strings or nil."
-  ([key]
-   (get @assets* key))
+  ([key] (get @assets* key))
   ([key name]
    (when-let [paths (registered-assets key)]
-     (if name
-       (filter #(.endsWith ^java.lang.String % (str (file-separator) name))
-               paths)
-       paths))))
+     (cond->> paths
+       name (filter (let [ext (str (file-separator) name)]
+                      #(str/ends-with? % ext)))))))

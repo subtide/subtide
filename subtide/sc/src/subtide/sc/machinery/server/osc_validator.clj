@@ -1,10 +1,9 @@
-(ns
-    ^{:doc "The Subtide <-> scsynth OSC messaging infrastructure.
-            Contains type signatures and checkers for all major scsynth
-            OSC messages to reduce the number of bogus messages that may
-            potentially crash the server."
-      :author "Sam Aaron"}
-  subtide.sc.machinery.server.osc-validator
+(ns subtide.sc.machinery.server.osc-validator
+  "The Subtide <-> scsynth OSC messaging infrastructure.
+  Contains type signatures and checkers for all major scsynth
+  OSC messages to reduce the number of bogus messages that may
+  potentially crash the server."
+  {:author "Sam Aaron"}
   (:use [subtide.osc])
   (:require [subtide.config.log :as log]))
 

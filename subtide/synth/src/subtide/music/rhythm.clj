@@ -3,7 +3,7 @@
   {:author "Jeff Rose"}
   (:require [subtide.schedule :refer [now]]))
 
-(defonce ^{:private true}
+(defonce ^:private
   _PROTOCOLS_
   (do
     (defprotocol IMetronome

@@ -64,7 +64,6 @@
    'subtide.music.pitch
    'subtide.music.rhythm
    'subtide.music.time
-   'subtide.music.tuning
    'subtide.osc
    'subtide.repl.debug
    'subtide.repl.examples

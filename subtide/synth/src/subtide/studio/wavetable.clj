@@ -2,7 +2,7 @@
   (:use [subtide.helpers math]
         [subtide.sc server buffer]))
 
-(def ^{:private true} WAVEFORM-LENGTH 1024)
+(def ^:private WAVEFORM-LENGTH 1024)
 
 (defn signal->wavetable
   "Convert a seq of values (-1 to 1) into wavetable format, which is partially
