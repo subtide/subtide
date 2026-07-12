@@ -21,4 +21,6 @@
 
 (deftest double-infinity-test
   (is (= Float/POSITIVE_INFINITY (sut/to-float ##Inf)))
-  (is (= Float/NEGATIVE_INFINITY (sut/to-float ##-Inf))))
+  (is (instance? Float (sut/to-float ##Inf)))
+  (is (= Float/NEGATIVE_INFINITY (sut/to-float ##-Inf)))
+  (is (instance? Float (sut/to-float ##-Inf))))
