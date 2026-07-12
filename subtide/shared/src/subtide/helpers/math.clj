@@ -6,6 +6,7 @@
   (let [shift (/ (- b a) (float (dec n)))]
     (concat (take (dec n) (iterate #(+ shift %) a)) [b])))
 
+;;TODO refactor with assumption we only need to consider 0..Integer/MAX_VALUE
 (def powers-of-two
   "A sorted list of the first 100 powers of two."
   (loop [res []
