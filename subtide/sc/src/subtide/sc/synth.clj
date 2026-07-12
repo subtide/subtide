@@ -459,9 +459,9 @@
 
 (defn count-ugens
   [ug-tree ug-name]
-  (let [ugens      (flatten  ug-tree)
+  (let [ugens      (flatten ug-tree)
         local-bufs (filter #(= ug-name (:name %)) ugens)
-        ids        (set (map :id local-bufs))]
+        ids        (into #{} (map :id) local-bufs)]
     (count ids)))
 
 (defmacro pre-synth
@@ -480,12 +480,12 @@
                side-tree#       (remove #(main-tree# %) *ugens*)
                ugens#           (concat ugens# side-tree#)
                n-local-bufs#    (count-ugens ugens# "LocalBuf")
-               ugens#           (if (> n-local-bufs# 0)
-                                  (cons (max-local-bufs n-local-bufs#) ugens#)
-                                  ugens#)
-               consts#          (if (> n-local-bufs# 0)
-                                  (cons n-local-bufs# consts#)
-                                  consts#)
+               ugens#           (cond->> ugens#
+                                  (> n-local-bufs# 0)
+                                  (cons (max-local-bufs n-local-bufs#)))
+               consts#          (cond->> consts#
+                                  (> n-local-bufs# 0)
+                                  (cons n-local-bufs#))
                consts#       (into [] (distinct) (concat consts# *constants*))]
            [~sname ~params ugens# consts#])))))
 
@@ -524,7 +524,7 @@
     ;; positional args. Positional args must go first.
     (foo [:head 2] 440 :amp 0.3)
     "
-  [sdef params this & args]
+  [sdef params {:keys [instance-fn] :as this} & args]
   (let [arg-names         (map keyword (map :name params))
         args              (or args [])
         [target pos args] (extract-target-pos-args args (foundation-default-group) :tail)
@@ -538,9 +538,8 @@
                                 params)
         arg-map           (arg-mapper args arg-names defaults)
         synth-node        (node (:name sdef) arg-map {:position pos :target target} sdef)
-        synth-node        (if (:instance-fn this)
-                            ((:instance-fn this) synth-node)
-                            synth-node)]
+        synth-node        (cond-> synth-node
+                            instance-fn instance-fn)]
     (when (:instance-fn this)
       (swap! active-synth-nodes* assoc (:id synth-node) synth-node))
     synth-node))
@@ -685,9 +684,8 @@
   [data]
   (let [{:keys [pnames params] :as sdef} (if (string? data)
                                            (synthdef/load-synth-file data)
-                                           (let [sdef (synthdef/synthdef-read data)]
-                                             (synthdef/load-synthdef sdef)
-                                             sdef))
+                                           (doto (synthdef/synthdef-read data)
+                                             synthdef/load-synthdef))
         [s-name params _ugen-form] (synth-form (symbol (:name sdef))
                                                (list (vec (mapcat (fn [pname default-value]
                                                                     [(symbol (:name pname)) default-value])
@@ -760,7 +758,6 @@
         [out-bus body]   (if (= 'out (first body))
                            [(second body) (nth body 2)]
                            [0 body])
-
         body (list `out out-bus (list `hold body demo-time :done `FREE))]
     `((synth "audition-synth" ~body))))
 
@@ -801,7 +798,6 @@
   (doseq [param (:params synth)]
     (reset! (:value param) (:default param))))
 
-
 (defmacro with-no-ugen-checks [& body]
   `(binding [subtide.sc.machinery.ugen.specs/*checking* false]
      (do ~@body)))
@@ -828,7 +824,6 @@
   [synth arg-name]
   (let [arg-name (name arg-name)]
     (index-of (:args synth) arg-name)))
-
 
 (extend Synth
   protocols/IKillable
