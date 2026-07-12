@@ -119,6 +119,7 @@
   (log/info (format "satisfying deps: %s" deps))
   (send-off dep-state* satisfy* (set deps)))
 
+;;TODO unit test
 (defn reset-deps
   "Reset the dependency system. Uses an agent so it's safe to call this
    from within a transaction."
@@ -131,6 +132,7 @@
                                        {:ts (now)
                                         :action :reset})})))
 
+;;TODO unit test
 (defn unsatisfy-all-dependencies
   "Unsatisfy all deps and reset completed tasks as todo tasks. Uses an
    agent so it's safe to call this from within a transaction."
@@ -164,15 +166,15 @@
   ([deps] (wait-until-deps-satisfied deps 20 0.1))
   ([deps timeout] (wait-until-deps-satisfied deps timeout 0.1))
   ([deps timeout wait-time]
-     (let [timeout-ms (long (* 1000 timeout))
-           wait-time  (long (* 1000 wait-time))]
-       (if (<= timeout-ms 0)
-         (while (not (deps-satisfied? deps))
-           (Thread/sleep wait-time))
-         (loop [sleep-time 0]
-           (when (> sleep-time timeout-ms)
-             (throw (Exception. (str "The following deps took too long (" timeout
-                                     " seconds) to be satisfied: " deps))))
-           (when-not (deps-satisfied? deps)
-             (Thread/sleep wait-time)
-             (recur (+ sleep-time wait-time))))))))
+   (let [timeout-ms (long (* 1000 timeout))
+         wait-time  (long (* 1000 wait-time))]
+     (if (<= timeout-ms 0)
+       (while (not (deps-satisfied? deps))
+         (Thread/sleep wait-time))
+       (loop [sleep-time 0]
+         (when (> sleep-time timeout-ms)
+           (throw (ex-info (str "The following deps took too long (" timeout " seconds) to be satisfied: " deps)
+                           {})))
+         (when-not (deps-satisfied? deps)
+           (Thread/sleep wait-time)
+           (recur (+ sleep-time wait-time))))))))
