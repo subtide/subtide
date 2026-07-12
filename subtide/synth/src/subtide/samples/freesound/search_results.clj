@@ -1,7 +1,7 @@
-(ns subtide.freesound.search-results
+(ns subtide.samples.freesound.search-results
   "A custom datatype and helper functions for working with a lazy sequence of search results."
   {:author "Kevin Neaton"}
-  (:require [subtide.freesound.url :as url]))
+  (:require [subtide.samples.freesound.url :as url]))
 
 (deftype SearchResults [n-results ^clojure.lang.LazySeq results-seq]
   clojure.lang.Sequential

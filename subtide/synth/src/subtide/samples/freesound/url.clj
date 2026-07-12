@@ -1,4 +1,4 @@
-(ns subtide.freesound.url
+(ns subtide.samples.freesound.url
   "Basic URL encoding and decoding. Various versions of these functions can found in other Clojure librarys."
   {:author "Kevin Neaton"}
   (:require [clojure.string :as str]

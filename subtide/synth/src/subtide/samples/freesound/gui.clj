@@ -1,4 +1,4 @@
-(ns subtide.freesound.gui
+(ns subtide.samples.freesound.gui
   (:import java.awt.event.ActionListener))
 
 (set! *warn-on-reflection* true)

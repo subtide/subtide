@@ -1,7 +1,6 @@
 {:deps {org.subtide/subtide.osc {:local/root "subtide/osc"}
         org.subtide/subtide.midi {:local/root "subtide/midi"}
         org.subtide/subtide.synth {:local/root "subtide/synth"}
-        org.subtide/subtide.freesound {:local/root "subtide/freesound"}
         org.subtide/subtide.sc {:local/root "subtide/sc"}
         org.subtide/subtide.shared {:local/root "subtide/shared"}
         org.subtide/subtide.schedule {:local/root "subtide/schedule"}}
