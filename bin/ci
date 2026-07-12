@@ -6,27 +6,31 @@ pushd subtide/synth
   ./bin/ci
 popd
 
+pushd subtide/shared
+  ./bin/ci
+popd
+
 # TODO
 #pushd subtide/schedule
 #  ./bin/ci
-#pop
+#popd
 
 # TODO
 #pushd subtide/osc
 #  ./bin/ci
-#pop
+#popd
 
 # TODO
 #pushd subtide/midi
 #  ./bin/ci
-#pop
+#popd
 
 # TODO
 #pushd subtide/freesound
 #  ./bin/ci
-#pop
+#popd
 
 # TODO
 #pushd subtide/sc
 #  ./bin/ci
-#pop
+#popd

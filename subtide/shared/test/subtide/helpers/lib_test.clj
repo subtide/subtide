@@ -1,6 +1,6 @@
-(ns subtide.util-test
-  (:use clojure.test)
-  (:require [subtide.helpers.lib :as lib]))
+(ns subtide.helpers.lib-test
+  (:require [clojure.test :refer [deftest is]]
+            [subtide.helpers.lib :as lib]))
 
 (deftest arg-mapper-test
   (let [defaults {:a 1 :b 2 :c 3 :d 4}
@@ -18,7 +18,3 @@
            (lib/arg-mapper [10 20 :c 30 :d 40]
                            names
                            defaults)))))
-
-(defn util-tests []
-  (binding [*test-out* *out*]
-    (run-tests 'util-test)))
