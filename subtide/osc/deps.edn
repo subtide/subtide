@@ -9,8 +9,11 @@
 
  :aliases
  {:test
-  {:extra-paths ["test" "test-resources"]}
+  {:extra-paths ["test" "test-resources"]
+   :extra-deps {nubank/matcher-combinators {:mvn/version "3.9.1"}
+                org.clojure/test.check     {:mvn/version "1.1.1"}}}
 
   :test-runner
-  {:extra-deps {lambdaisland/kaocha {:mvn/version "1.91.1392"}}
+  {:extra-deps {lambdaisland/kaocha {:mvn/version "1.91.1392"}
+                nubank/matcher-combinators {:mvn/version "3.9.1"}}
    :main-opts ["-m" "kaocha.runner"]}}}
