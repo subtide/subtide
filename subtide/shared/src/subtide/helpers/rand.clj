@@ -1,4 +1,5 @@
-(ns subtide.helpers.rand)
+(ns subtide.helpers.rand
+  (:require [clojure.math :as math]))
 
 (defn rand-in-range
   "Range rand, returns a random number between min (inclusive) and
@@ -26,6 +27,6 @@
   (let [a (rand-signed)
         b (rand-signed)
         s (+ (* a a) (* b b))]
-    (if (or (= 0 s) (< 1.0 s))
+    (if (or (zero? s) (< 1.0 s))
       (recur)
-      (* a (Math/sqrt (/ (* -2.0 (Math/log s)) s))))))
+      (* a (math/sqrt (/ (* -2.0 (math/log s)) s))))))
