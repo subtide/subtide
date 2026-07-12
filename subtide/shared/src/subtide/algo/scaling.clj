@@ -1,3 +1,4 @@
+;;TODO unit tests
 (ns subtide.algo.scaling
   "Handy number scaling and rounding fns"
   {:author "Sam Aaron"})
@@ -31,10 +32,7 @@
 
            (out-max - out-min) (x - in-min)
    f (x) = --------------------------------  + out-min
-                    in-max - in-min
-
-"
-
+                    in-max - in-min"
   [x in-min in-max out-min out-max]
   (+ (/ (* (- out-max out-min) (- x in-min))
         (- in-max in-min))
