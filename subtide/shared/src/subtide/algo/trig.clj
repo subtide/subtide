@@ -1,3 +1,4 @@
+;;TODO unit test
 (ns subtide.algo.trig
   "Handy trig fns"
   {:author "Sam Aaron"}

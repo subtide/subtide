@@ -1,3 +1,4 @@
+;;TODO unit tests
 (ns subtide.algo.fn
   "Handy fn generators"
   {:author "Sam Aaron"})
