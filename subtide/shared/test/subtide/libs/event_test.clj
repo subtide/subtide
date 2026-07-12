@@ -1,4 +1,4 @@
-(ns subtide.event-test
+(ns subtide.libs.event-test
   (:require
    [subtide.libs.event :refer [on-sync-event on-event event remove-event-handler sync-event]]
    [clojure.test :refer [deftest is]]))
