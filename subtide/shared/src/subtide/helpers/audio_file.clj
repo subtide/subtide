@@ -1,5 +1,4 @@
-(ns
-  subtide.helpers.audio-file
+(ns subtide.helpers.audio-file
   "Audio file encoding functions"
   {:author "Sam Aaron"}
   (:require [clojure.java.io :as io]
@@ -9,6 +8,8 @@
            [java.io ByteArrayInputStream]
            [java.nio ByteBuffer]))
 
+(set! *warn-on-reflection* true)
+
 (defn fill-data-buffer!
   [^ByteBuffer b-data data sample-bytes]
   (loop [idx 0
@@ -17,7 +18,6 @@
       (let [b-idx (* sample-bytes idx)]
         (.putShort b-data b-idx (short (* (first data) Short/MAX_VALUE))))
       (recur (inc idx) (rest data))))
-
   b-data)
 
 (defn write-audio-file-from-seq
@@ -26,7 +26,8 @@
   audio file."
   [data path frame-rate n-channels]
   (when (some #(or (< % -1) (> % 1)) data)
-    (throw (Exception. (str "Unable to write audio file with this data as it contains sample points either less than -1 or greater than 1."))))
+    (throw (ex-info "Unable to write audio file with this data as it contains sample points either less than -1 or greater than 1."
+                    {})))
   (let [path         (file/resolve-tilde-path path)
         frame-rate   (float frame-rate)
         n-channels   (int n-channels)
